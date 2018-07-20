@@ -18,13 +18,13 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
-import advanced.demo.R;
+import jigsaw.puzzle.R;
 import my.util.MatrixTool;
 import my.util.PxTool;
 
 /**
  * Imitate the cropped image of WeChat. Directly use in xml.
- * Remember to add attributes for custom crop categories.
+ * fixme: Remember to add attributes for custom crop categories.
  *
  * @author 15445
  */

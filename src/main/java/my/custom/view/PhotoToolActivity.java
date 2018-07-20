@@ -36,14 +36,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Objects;
 
-import advanced.demo.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import jigsaw.puzzle.R;
 import my.util.BitmapCompress;
 
 /**
  * 此Activity用于封装从相册或者相机获取一张图片,可以选择对图片进行裁剪后返回或者直接返回图片.
  * 裁剪类别有:圆形,正方形. 通过公有字段传入数据到intent来决定裁剪类别.
+ * fixme: Remember to register in manifest.
  *
  * @author 15445
  */

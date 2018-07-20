@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context="my.custom.view.PhotoToolActivity">
 
-
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolBar"
         android:layout_width="match_parent"
