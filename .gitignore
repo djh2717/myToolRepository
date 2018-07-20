@@ -20,13 +20,17 @@
 
 
 
-
-
 /src/main/res/*
 !/src/main/res/layout/
+!/src/main/res/drawable/
 
 /src/main/res/layout/*
 #主要在这里插入不忽略的布局文件
 !/src/main/res/layout/activity_photo_tool.xml
 
 
+
+/src/main/res/drawable/*
+#主要在这里插入不忽略的图片文件
+!/src/main/res/drawable/grade.png
+!/src/main/res/drawable/grade2.png

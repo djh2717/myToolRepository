@@ -23,7 +23,7 @@ import jigsaw.puzzle.R;
 public class EstimateCheckBox extends AppCompatCheckBox {
 
     /**
-     * This mLocation in the estimateCheckBoxes.
+     * This location in the estimateCheckBoxes.
      */
     public int location;
     public boolean[] scoreBoolean;
