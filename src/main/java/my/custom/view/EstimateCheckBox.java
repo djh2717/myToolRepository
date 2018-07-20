@@ -16,28 +16,28 @@ import jigsaw.puzzle.R;
 /**
  * A score component,implement by AppCompatCheckBox,direct use in xml.
  * Usually use the five same this.
- * fixme: Must set the location,mScoreBoolean and other estimateCheckBox.
+ * fixme: Must set the mLocation,mScoreBoolean and other estimateCheckBox.
  *
  * @author djh
  */
 public class EstimateCheckBox extends AppCompatCheckBox {
 
     /**
-     * This location in the estimateCheckBoxes.
+     * This mLocation in the estimateCheckBoxes.
      */
     public int location;
+    public boolean[] scoreBoolean;
 
-    private boolean[] mScoreBoolean;
+    /**
+     * Other estimateCheckBox,usually is five.
+     */
+    public EstimateCheckBox[] estimateCheckBoxes;
 
     private RectF mRectF;
     private Paint mPaint;
     private Bitmap mCheckBitmap;
     private Bitmap mNotCheckBitmap;
 
-    /**
-     * Other estimateCheckBox,usually is five.
-     */
-    private EstimateCheckBox[] mEstimateCheckBox;
 
     public EstimateCheckBox(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -66,26 +66,26 @@ public class EstimateCheckBox extends AppCompatCheckBox {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mEstimateCheckBox != null && mScoreBoolean != null
-                && mEstimateCheckBox.length == mScoreBoolean.length) {
+        if (estimateCheckBoxes != null && scoreBoolean != null
+                && estimateCheckBoxes.length == scoreBoolean.length) {
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_UP:
-                    //Can not set your location as true,otherwise after
+                    //Can not set your mLocation as true,otherwise after
                     //trigger onCheck it again become false.
                     for (int j = 0; j < location; j++) {
-                        mScoreBoolean[j] = true;
+                        scoreBoolean[j] = true;
                     }
 
-                    for (int j = location; j < mScoreBoolean.length; j++) {
-                        mScoreBoolean[j] = false;
+                    for (int j = location; j < scoreBoolean.length; j++) {
+                        scoreBoolean[j] = false;
                     }
                     //According to the scoreBoolean values,set the estimateCheckBox state.
-                    for (int j = 0; j < mScoreBoolean.length; j++) {
-                        mEstimateCheckBox[j].setChecked(mScoreBoolean[j]);
+                    for (int j = 0; j < scoreBoolean.length; j++) {
+                        estimateCheckBoxes[j].setChecked(scoreBoolean[j]);
                     }
                     //After set checked,set you location boolean as true.
-                    mScoreBoolean[location] = true;
+                    scoreBoolean[location] = true;
                     break;
                 default:
                     break;
@@ -94,13 +94,5 @@ public class EstimateCheckBox extends AppCompatCheckBox {
             throw new RuntimeException("EstimateCheckBox is not work correct");
         }
         return super.onTouchEvent(event);
-    }
-
-    public void setEstimateCheckBox(EstimateCheckBox[] estimateCheckBox) {
-        mEstimateCheckBox = estimateCheckBox;
-    }
-
-    public void setScoreBoolean(boolean[] scoreBoolean) {
-        mScoreBoolean = scoreBoolean;
     }
 }

@@ -58,7 +58,7 @@ public class CustomDisplayAvatar extends AppCompatImageView
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        //获取图片宽高和控件宽高
+        //Get picture width and height and component width.
         Drawable drawable = getDrawable();
         if (drawable != null) {
             drawableWidth = drawable.getIntrinsicWidth();
@@ -70,12 +70,12 @@ public class CustomDisplayAvatar extends AppCompatImageView
     }
 
     private void changeByMatrix() {
-        //用MatrixTool实现了封装
+        //Use MatrixTool encapsulation.
         matrix = MatrixTool.getAdapterImageViewMatrix(this);
-        //记录初始缩放比例
+        //Record initial scaling
         initializeScaleX = MatrixTool.getMatrixValues(MatrixTool.SCALE_X, matrix);
         initializeScaleY = MatrixTool.getMatrixValues(MatrixTool.SCALE_Y, matrix);
-        //记录初始矩阵值
+        //Record initial matrix values
         matrix.getValues(initializeMatrixValues);
         setImageMatrix(matrix);
     }
@@ -104,10 +104,10 @@ public class CustomDisplayAvatar extends AppCompatImageView
                     break;
                 default:
             }
-            //手势监听,主要监听双击和抛掷(用于惯性滑动)
+            //Gesture monitoring,mainly monitor double taps and throws(For inertial sliding).
             gestureDetector.onTouchEvent(event);
         } else {
-            //缩放手势监听
+            //Zoom gesture monitoring
             scaleGestureDetector.onTouchEvent(event);
         }
         return true;
