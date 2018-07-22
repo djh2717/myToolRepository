@@ -17,7 +17,7 @@ import java.util.Arrays;
  *
  * @author 15445
  */
-public class MatrixTool {
+public class MatrixUtil {
 
     public static final int SCALE_X = 0;
     public static final int SCALE_Y = 4;

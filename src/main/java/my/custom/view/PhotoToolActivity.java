@@ -36,9 +36,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Objects;
 
+import advanced.demo.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import jigsaw.puzzle.R;
 import my.util.BitmapCompress;
 
 /**

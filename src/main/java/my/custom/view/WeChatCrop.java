@@ -18,9 +18,9 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
-import jigsaw.puzzle.R;
-import my.util.MatrixTool;
-import my.util.PxTool;
+import advanced.demo.R;
+import my.util.MatrixUtil;
+import my.util.PxUtil;
 
 /**
  * Imitate the cropped image of WeChat. Directly use in xml.
@@ -106,10 +106,10 @@ public class WeChatCrop extends AppCompatImageView implements
 
     private void changeByMatrix() {
         //用MatrixTool实现了封装
-        matrix = MatrixTool.getAdapterImageViewMatrix(this);
+        matrix = MatrixUtil.getAdapterImageViewMatrix(this);
         //记录初始缩放比例
-        initializeScaleX = MatrixTool.getMatrixValues(MatrixTool.SCALE_X, matrix);
-        initializeScaleY = MatrixTool.getMatrixValues(MatrixTool.SCALE_Y, matrix);
+        initializeScaleX = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_X, matrix);
+        initializeScaleY = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_Y, matrix);
 
         setImageMatrix(matrix);
     }
@@ -132,14 +132,14 @@ public class WeChatCrop extends AppCompatImageView implements
         canvas.drawRect(transparentSquare, paint);
 
         //根据屏幕宽度计算透明正方形(也是圆形的外接矩形)的位置
-        transparentSquare.left = PxTool.dpToPx(20);
-        transparentSquare.right = width - PxTool.dpToPx(20);
+        transparentSquare.left = PxUtil.dpToPx(20);
+        transparentSquare.right = width - PxUtil.dpToPx(20);
         transparentSquare.top = (height - transparentSquare.width()) / 2;
         transparentSquare.bottom = transparentSquare.top + transparentSquare.width();
         //绘制边框线的画笔设置
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(Color.WHITE);
-        paint.setStrokeWidth(PxTool.dpToPx(1));
+        paint.setStrokeWidth(PxUtil.dpToPx(1));
         paint.setAlpha(255);
         //根据裁剪类别绘制不同的透明图形
         drawTypeGraph(canvas);
@@ -215,7 +215,7 @@ public class WeChatCrop extends AppCompatImageView implements
             return null;
         }
         //获取缩放后图片的RectF
-        RectF rectF = MatrixTool.getRectFByMatrix(this, matrix);
+        RectF rectF = MatrixUtil.getRectFByMatrix(this, matrix);
         //缩放之后图片的宽高
         float scaledDrawableWidth = bitmap.getWidth();
         float scaledDrawableHeight = bitmap.getHeight();
@@ -355,8 +355,8 @@ public class WeChatCrop extends AppCompatImageView implements
     @Override
     public boolean onScale(ScaleGestureDetector detector) {
         float scaleFactor = detector.getScaleFactor();
-        float currentScaleX = MatrixTool.getMatrixValues(MatrixTool.SCALE_X, matrix);
-        float currentScaleY = MatrixTool.getMatrixValues(MatrixTool.SCALE_Y, matrix);
+        float currentScaleX = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_X, matrix);
+        float currentScaleY = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_Y, matrix);
         //最大最小值判断,最小缩小到比初始缩放值一半,最大放大到初始缩放值5倍
         if ((initializeScaleX / currentScaleX < 2 && initializeScaleY / currentScaleY < 2 && scaleFactor < 1)
                 || (scaleFactor >= 1 && currentScaleY / initializeScaleY < 5 && currentScaleX / initializeScaleX < 5)) {
@@ -387,11 +387,11 @@ public class WeChatCrop extends AppCompatImageView implements
         int scaledDrawableHeight = 0;
         if (drawable != null) {
             //只有一个触摸点,且触摸点的位置要在图片的范围内才能移动图片.
-            scaledDrawableWidth = (int) (drawable.getIntrinsicWidth() * MatrixTool.getMatrixValues(MatrixTool.SCALE_X, matrix));
-            scaledDrawableHeight = (int) (drawable.getIntrinsicHeight() * MatrixTool.getMatrixValues(MatrixTool.SCALE_Y, matrix));
+            scaledDrawableWidth = (int) (drawable.getIntrinsicWidth() * MatrixUtil.getMatrixValues(MatrixUtil.SCALE_X, matrix));
+            scaledDrawableHeight = (int) (drawable.getIntrinsicHeight() * MatrixUtil.getMatrixValues(MatrixUtil.SCALE_Y, matrix));
         }
-        float translationX = MatrixTool.getMatrixValues(MatrixTool.TRANS_X, matrix);
-        float translationY = MatrixTool.getMatrixValues(MatrixTool.TRANS_Y, matrix);
+        float translationX = MatrixUtil.getMatrixValues(MatrixUtil.TRANS_X, matrix);
+        float translationY = MatrixUtil.getMatrixValues(MatrixUtil.TRANS_Y, matrix);
         if (pointerCount == 1) {
             /*让图片跟随手指拖动,此处要注意,即使是使用相对于当前控件的相对坐标,
             也要计算绝对偏移量,不停的更新最后一次的坐标

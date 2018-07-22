@@ -29,6 +29,7 @@ public class MyApplication extends Application {
         LitePal.initialize(context);
         Logger.init("Log");
         refWatcher = installRefWatcher();
+        //EventBus.builder().addIndex(new MyEventBusIndex()).installDefaultEventBus();
     }
 
     public static Context getContext() {

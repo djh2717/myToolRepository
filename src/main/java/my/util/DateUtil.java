@@ -7,11 +7,11 @@ import java.util.Date;
 
 /**
  * Use to get now time or date.
- * 获取日期的格式 "yyyy-MM-dd HH:mm:ss"
+ * Get the format of the date "yyyy-MM-dd HH:mm:ss"
  *
  * @author 15445
  */
-public class DateTool {
+public class DateUtil {
 
     public static final int TIME_ALL = 0;
     public static final int TIME_HOUR = 1;

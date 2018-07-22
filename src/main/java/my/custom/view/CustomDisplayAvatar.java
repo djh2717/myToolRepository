@@ -17,7 +17,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.animation.DecelerateInterpolator;
 
-import my.util.MatrixTool;
+import my.util.MatrixUtil;
 
 /**
  * Imitate the avatar of WeChat. Directly use in xml.
@@ -70,11 +70,11 @@ public class CustomDisplayAvatar extends AppCompatImageView
     }
 
     private void changeByMatrix() {
-        //Use MatrixTool encapsulation.
-        matrix = MatrixTool.getAdapterImageViewMatrix(this);
+        //Use MatrixUtil encapsulation.
+        matrix = MatrixUtil.getAdapterImageViewMatrix(this);
         //Record initial scaling
-        initializeScaleX = MatrixTool.getMatrixValues(MatrixTool.SCALE_X, matrix);
-        initializeScaleY = MatrixTool.getMatrixValues(MatrixTool.SCALE_Y, matrix);
+        initializeScaleX = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_X, matrix);
+        initializeScaleY = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_Y, matrix);
         //Record initial matrix values
         matrix.getValues(initializeMatrixValues);
         setImageMatrix(matrix);
@@ -117,18 +117,18 @@ public class CustomDisplayAvatar extends AppCompatImageView
         float currentX = event.getX();
         float offSetX = currentX - lastX;
         //如果是放大
-        if (MatrixTool.getMatrixValues(MatrixTool.SCALE_X, matrix) > initializeScaleX
-                && MatrixTool.getMatrixValues(MatrixTool.SCALE_Y, matrix) > initializeScaleY) {
+        if (MatrixUtil.getMatrixValues(MatrixUtil.SCALE_X, matrix) > initializeScaleX
+                && MatrixUtil.getMatrixValues(MatrixUtil.SCALE_Y, matrix) > initializeScaleY) {
             float currentY = event.getY();
             float offSetY = currentY - lastY;
             //判断放大之后的图片的宽高是否大于控件宽高,如果都大于,就正常拖动
             //如果高小于,垂直慢速拖动(不存在宽小于)
-            float scaledWidth = MatrixTool.getMatrixValues(MatrixTool.SCALE_X, matrix) * drawableWidth;
-            float scaledHeight = MatrixTool.getMatrixValues(MatrixTool.SCALE_Y, matrix) * drawableHeight;
+            float scaledWidth = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_X, matrix) * drawableWidth;
+            float scaledHeight = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_Y, matrix) * drawableHeight;
             //宽高都大于控件宽高,判断出现黑边的方向,有黑边方向的慢速拖动
             if (scaledWidth > width && scaledHeight > height) {
                 //根据矩阵获取图片的矩形,来判断上下左右边是否出现黑边
-                RectF rectF = MatrixTool.getRectFByMatrix(this, matrix);
+                RectF rectF = MatrixUtil.getRectFByMatrix(this, matrix);
                 if (rectF.left < 0 && rectF.right > width && rectF.top < 0 && rectF.bottom > height) {
                     //没有黑边
                     matrix.postTranslate(offSetX, offSetY);
@@ -144,7 +144,7 @@ public class CustomDisplayAvatar extends AppCompatImageView
                 }
             } else {
                 //根据矩阵获取图片的矩形,来判断左右边是否出现黑边
-                RectF rectF = MatrixTool.getRectFByMatrix(this, matrix);
+                RectF rectF = MatrixUtil.getRectFByMatrix(this, matrix);
                 if (rectF.left > 0 || rectF.right < width) {
                     //有水平黑边,水平慢速移动
                     matrix.postTranslate(offSetX * 0.3f, offSetY * 0.3f);
@@ -168,7 +168,7 @@ public class CustomDisplayAvatar extends AppCompatImageView
         ValueAnimator valueAnimatorX = null;
         ValueAnimator valueAnimatorY = null;
         AnimatorSet animatorSet = new AnimatorSet();
-        RectF rectF = MatrixTool.getRectFByMatrix(this, matrix);
+        RectF rectF = MatrixUtil.getRectFByMatrix(this, matrix);
 
         //缩放后图片的宽高与控件宽高的差值,用于右边和下边有黑边时计算偏移量
         float widthDiffValue = rectF.width() - width;
@@ -177,7 +177,7 @@ public class CustomDisplayAvatar extends AppCompatImageView
         //如果放大后的高小于控件的高,水平方向根据黑边来判断回弹,垂直方向直接居中
         if (rectF.height() <= height) {
             float targetY = (height - rectF.height()) / 2;
-            float startY = MatrixTool.getMatrixValues(MatrixTool.TRANS_Y, matrix);
+            float startY = MatrixUtil.getMatrixValues(MatrixUtil.TRANS_Y, matrix);
             //垂直居中的动画
             final float[] lastY = {startY};
             valueAnimatorY = ValueAnimator.ofFloat(startY, targetY);
@@ -186,14 +186,14 @@ public class CustomDisplayAvatar extends AppCompatImageView
             //判断是否有水平黑边,如果没有无需回弹
             if (rectF.left > 0) {
                 //如果是左边有水平黑边
-                float startX = MatrixTool.getMatrixValues(MatrixTool.TRANS_X, matrix);
+                float startX = MatrixUtil.getMatrixValues(MatrixUtil.TRANS_X, matrix);
                 final float[] lastX = {startX};
                 valueAnimatorX = ValueAnimator.ofFloat(startX, 0f);
                 valueAnimatorXListener(lastX, valueAnimatorX);
             } else if (rectF.right < width) {
                 //如果是右边有水平黑边
                 float targetX = -widthDiffValue;
-                float startX = MatrixTool.getMatrixValues(MatrixTool.TRANS_X, matrix);
+                float startX = MatrixUtil.getMatrixValues(MatrixUtil.TRANS_X, matrix);
                 final float[] lastX = {startX};
                 valueAnimatorX = ValueAnimator.ofFloat(startX, targetX);
                 valueAnimatorXListener(lastX, valueAnimatorX);
@@ -255,7 +255,7 @@ public class CustomDisplayAvatar extends AppCompatImageView
     }
 
     private ValueAnimator leftBlackBorder() {
-        float startX = MatrixTool.getMatrixValues(MatrixTool.TRANS_X, matrix);
+        float startX = MatrixUtil.getMatrixValues(MatrixUtil.TRANS_X, matrix);
         final float[] lastX = {startX};
         ValueAnimator valueAnimatorX = ValueAnimator.ofFloat(startX, 0f);
         valueAnimatorXListener(lastX, valueAnimatorX);
@@ -264,7 +264,7 @@ public class CustomDisplayAvatar extends AppCompatImageView
 
     private ValueAnimator rightBlackBorder(float widthDiffValue) {
         float targetX = -widthDiffValue;
-        float startX = MatrixTool.getMatrixValues(MatrixTool.TRANS_X, matrix);
+        float startX = MatrixUtil.getMatrixValues(MatrixUtil.TRANS_X, matrix);
         final float[] lastX = {startX};
         ValueAnimator valueAnimatorX = ValueAnimator.ofFloat(startX, targetX);
         valueAnimatorXListener(lastX, valueAnimatorX);
@@ -272,7 +272,7 @@ public class CustomDisplayAvatar extends AppCompatImageView
     }
 
     private ValueAnimator topBlackBorder() {
-        float startY = MatrixTool.getMatrixValues(MatrixTool.TRANS_Y, matrix);
+        float startY = MatrixUtil.getMatrixValues(MatrixUtil.TRANS_Y, matrix);
         final float[] lastY = {startY};
         ValueAnimator valueAnimatorY = ValueAnimator.ofFloat(startY, 0f);
         valueAnimatorYListener(lastY, valueAnimatorY);
@@ -281,7 +281,7 @@ public class CustomDisplayAvatar extends AppCompatImageView
 
     private ValueAnimator bottomBlackBorder(float heightDiffValue) {
         float targetY = -heightDiffValue;
-        float startY = MatrixTool.getMatrixValues(MatrixTool.TRANS_Y, matrix);
+        float startY = MatrixUtil.getMatrixValues(MatrixUtil.TRANS_Y, matrix);
         final float[] lastY = {startY};
         ValueAnimator valueAnimatorY = ValueAnimator.ofFloat(startY, targetY);
         valueAnimatorYListener(lastY, valueAnimatorY);
@@ -317,8 +317,8 @@ public class CustomDisplayAvatar extends AppCompatImageView
     @Override
     public boolean onScale(ScaleGestureDetector detector) {
         float scaleFactor = detector.getScaleFactor();
-        float currentScaleX = MatrixTool.getMatrixValues(MatrixTool.SCALE_X, matrix);
-        float currentScaleY = MatrixTool.getMatrixValues(MatrixTool.SCALE_Y, matrix);
+        float currentScaleX = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_X, matrix);
+        float currentScaleY = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_Y, matrix);
         //最大最小值判断,最小缩小到比初始缩放值一半,最大放大到初始缩放值5倍
         if ((initializeScaleX / currentScaleX < 2 && initializeScaleY / currentScaleY < 2 && scaleFactor < 1)
                 || (scaleFactor >= 1 && currentScaleY / initializeScaleY < 5 && currentScaleX / initializeScaleX < 5)) {
@@ -348,17 +348,17 @@ public class CustomDisplayAvatar extends AppCompatImageView
      */
     @Override
     public void onScaleEnd(ScaleGestureDetector detector) {
-        float currentScaleX = MatrixTool.getMatrixValues(MatrixTool.SCALE_X, matrix);
+        float currentScaleX = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_X, matrix);
         //如果缩小了,在缩放结束时恢复到初始缩放状态
         if (currentScaleX < initializeScaleX) {
             float[] valuesFrom = new float[9];
             matrix.getValues(valuesFrom);
-            ValueAnimator valueAnimator = MatrixTool.matrixToMatrix(new MatrixTool.MatrixEvaluator(),
+            ValueAnimator valueAnimator = MatrixUtil.matrixToMatrix(new MatrixUtil.MatrixEvaluator(),
                     valuesFrom, initializeMatrixValues, 300);
             valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
-                    MatrixTool.MatrixValues matrixValues = (MatrixTool.MatrixValues) animation.getAnimatedValue();
+                    MatrixUtil.MatrixValues matrixValues = (MatrixUtil.MatrixValues) animation.getAnimatedValue();
                     matrix.setValues(matrixValues.getValues());
                     setImageMatrix(matrix);
                 }
@@ -394,12 +394,12 @@ public class CustomDisplayAvatar extends AppCompatImageView
                 matrix.getValues(targetValues);
 
                 //属性动画,实现从矩阵变换到矩阵
-                ValueAnimator valueAnimator = MatrixTool.matrixToMatrix(new MatrixTool.MatrixEvaluator(),
+                ValueAnimator valueAnimator = MatrixUtil.matrixToMatrix(new MatrixUtil.MatrixEvaluator(),
                         fromValues, targetValues, 200);
                 valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                     @Override
                     public void onAnimationUpdate(ValueAnimator animation) {
-                        MatrixTool.MatrixValues currentValues = (MatrixTool.MatrixValues) animation.getAnimatedValue();
+                        MatrixUtil.MatrixValues currentValues = (MatrixUtil.MatrixValues) animation.getAnimatedValue();
                         matrix.setValues(currentValues.getValues());
                         setImageMatrix(matrix);
                     }
@@ -415,11 +415,11 @@ public class CustomDisplayAvatar extends AppCompatImageView
                 valueAnimator.start();
             } else {
                 //还原到初始矩阵,逻辑和放大一样,只需将valuesFrom和targetValues互换
-                ValueAnimator valueAnimator = MatrixTool.matrixToMatrix(new MatrixTool.MatrixEvaluator(), fromValues, initializeMatrixValues, 200);
+                ValueAnimator valueAnimator = MatrixUtil.matrixToMatrix(new MatrixUtil.MatrixEvaluator(), fromValues, initializeMatrixValues, 200);
                 valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                     @Override
                     public void onAnimationUpdate(ValueAnimator animation) {
-                        MatrixTool.MatrixValues currentValues = (MatrixTool.MatrixValues) animation.getAnimatedValue();
+                        MatrixUtil.MatrixValues currentValues = (MatrixUtil.MatrixValues) animation.getAnimatedValue();
                         matrix.setValues(currentValues.getValues());
                         setImageMatrix(matrix);
                     }
@@ -434,7 +434,7 @@ public class CustomDisplayAvatar extends AppCompatImageView
          */
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            RectF rectF = MatrixTool.getRectFByMatrix(CustomDisplayAvatar.this, matrix);
+            RectF rectF = MatrixUtil.getRectFByMatrix(CustomDisplayAvatar.this, matrix);
             //缩放后图片的宽高与控件宽高的差值,用于右边和下边有黑边时计算偏移量
             final float widthDiffValue = rectF.width() - width;
             final float heightDiffValue = rectF.height() - height;
@@ -456,7 +456,7 @@ public class CustomDisplayAvatar extends AppCompatImageView
                         matrix.postTranslate(offSetX, 0f);
 
                         //矩阵平移后是否出现了水平黑边,如果出现了,把矩阵平移回没有黑边
-                        float matrixTranslateX = MatrixTool.getMatrixValues(MatrixTool.TRANS_X, matrix);
+                        float matrixTranslateX = MatrixUtil.getMatrixValues(MatrixUtil.TRANS_X, matrix);
                         if (matrixTranslateX > 0) {
                             //左边黑边
                             matrix.postTranslate(-matrixTranslateX, 0f);
@@ -485,7 +485,7 @@ public class CustomDisplayAvatar extends AppCompatImageView
                         matrix.postTranslate(0f, offSetY);
 
                         //矩阵平移后是否出现了垂直黑边,如果出现了,把矩阵平移回没有黑边
-                        float matrixTranslateY = MatrixTool.getMatrixValues(MatrixTool.TRANS_Y, matrix);
+                        float matrixTranslateY = MatrixUtil.getMatrixValues(MatrixUtil.TRANS_Y, matrix);
                         if (matrixTranslateY > 0) {
                             //顶部黑边
                             matrix.postTranslate(0f, -matrixTranslateY);

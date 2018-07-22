@@ -10,7 +10,7 @@ import android.view.View;
  * @author Djh on 2018/7/18 12:06
  * E-Mail ：1544579459@qq.com
  */
-public class PageTransFormerTool implements ViewPager.PageTransformer {
+public class PageTransFormerUtil implements ViewPager.PageTransformer {
 
     /**
      * Transition mode
@@ -22,7 +22,7 @@ public class PageTransFormerTool implements ViewPager.PageTransformer {
 
     private int transFormerType;
 
-    public PageTransFormerTool(int transFormerType) {
+    public PageTransFormerUtil(int transFormerType) {
         this.transFormerType = transFormerType;
     }
 
