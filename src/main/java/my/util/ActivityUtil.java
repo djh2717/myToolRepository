@@ -12,7 +12,7 @@ import android.view.Window;
 
 /**
  * An activity util, use to start activity or start activityForResult and custom
- * the activity transition animator.
+ * the activity transition animator. This is only adapter no intent extra data.
  *
  * @author djh
  */
