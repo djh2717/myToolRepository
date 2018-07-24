@@ -16,7 +16,7 @@ import advanced.demo.R;
 /**
  * A score component,implement by AppCompatCheckBox,direct use in xml.
  * Usually use the five same this.
- * fixme: Must set the mLocation,mScoreBoolean and other estimateCheckBox.
+ * notice: Must set the mLocation,mScoreBoolean and other estimateCheckBox.
  *
  * @author djh
  */

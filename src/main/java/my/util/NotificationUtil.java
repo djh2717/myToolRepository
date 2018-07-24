@@ -57,14 +57,14 @@ public class NotificationUtil {
             //According to caller afferent priority,create channel initial state priority,
             //and set the channel name show to users. The priority can modify by user in setting interface.
             if (priority == PRIORITY_DEFAULT) {
-                // FIXME: 2018/7/23 If you need add channel, add a static field and modify here.
+                // NOTICE: 2018/7/23 If you need add channel, add a static field and modify here.
                 if (channelId.equals(MAIN_CHANNEL_ID)) {
                     notificationChannel = new NotificationChannel(channelId, context.getString(R.string.app_name) + "主要通知", NotificationManager.IMPORTANCE_DEFAULT);
                 } else {
                     notificationChannel = new NotificationChannel(channelId, context.getString(R.string.app_name) + "次要通知", NotificationManager.IMPORTANCE_DEFAULT);
                 }
             } else {
-                // FIXME: 2018/7/23 Also need modify here like top.
+                // NOTICE: 2018/7/23 Also need modify here like top.
                 if (channelId.equals(MAIN_CHANNEL_ID)) {
                     notificationChannel = new NotificationChannel(channelId, context.getString(R.string.app_name) + "主要通知", NotificationManager.IMPORTANCE_HIGH);
                 } else {

@@ -19,14 +19,4 @@ public class PxUtil {
     public static float spToPx(int sp) {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, MyApplication.getContext().getResources().getDisplayMetrics());
     }
-
-    public static int getStatusBarHeight() {
-        int height = 0;
-        //获取资源ID
-        int resourceId = MyApplication.getContext().getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            height = MyApplication.getContext().getResources().getDimensionPixelSize(resourceId);
-        }
-        return height;
-    }
 }

@@ -24,7 +24,7 @@ import my.util.PxUtil;
 
 /**
  * Imitate the cropped image of WeChat. Directly use in xml.
- * fixme: Remember to add attributes for custom crop categories.
+ * notice: Remember to add attributes for custom crop categories.
  *
  * @author 15445
  */

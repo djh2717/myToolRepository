@@ -14,11 +14,12 @@ import org.litepal.LitePal;
  * @author 15445
  */
 public class MyApplication extends Application {
+
     @SuppressLint("StaticFieldLeak")
     private static Context context;
 
     /**
-     * 监听内存泄露的插件
+     * Plugin for memory leaks.
      */
     RefWatcher refWatcher;
 
@@ -38,7 +39,7 @@ public class MyApplication extends Application {
 
     private RefWatcher installRefWatcher() {
         if (LeakCanary.isInAnalyzerProcess(this)) {
-            /*如果该进程用来给LeakCanary进行堆分析的,则RefWatcher不可用*/
+            //如果该进程用来给LeakCanary进行堆分析的,则RefWatcher不可用
             return RefWatcher.DISABLED;
         }
         return LeakCanary.install(this);
@@ -47,8 +48,8 @@ public class MyApplication extends Application {
     public static RefWatcher getRefWatcher() {
         MyApplication myApplication = (MyApplication) getContext();
         return myApplication.refWatcher;
-        /*在Activity或fragment的onDestroy中如下使用*/
-        /*RefWatcher refWatcher = MyApplication.getRefWatcher();
-        refWatcher.watch(this);*/
+        //在Activity或fragment的onDestroy中如下使用
+        //RefWatcher refWatcher = MyApplication.getRefWatcher();
+        //refWatcher.watch(this);
     }
 }
