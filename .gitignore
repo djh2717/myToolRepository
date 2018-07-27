@@ -1,4 +1,4 @@
-*.iml
+﻿*.iml
 /build
 /build.gradle
 /libs/
@@ -26,7 +26,7 @@
 
 /src/main/res/layout/*
 #主要在这里插入不忽略的布局文件
-!/layout/activity_photo.xml
+!/src/main/res/layout/activity_photo.xml
 
 
 
