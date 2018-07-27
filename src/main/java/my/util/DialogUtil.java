@@ -55,13 +55,18 @@ public class DialogUtil {
             @Override
             public void run() {
                 i++;
-                if (i == 1) {
-                    progressDialog.setMessage("正在加载,请稍后.");
-                } else if (i == 2) {
-                    progressDialog.setMessage("正在加载,请稍后..");
-                } else if (i == 3) {
-                    i = 0;
-                    progressDialog.setMessage("正在加载,请稍后...");
+                switch (i) {
+                    case 1:
+                        progressDialog.setMessage("正在加载,请稍后.");
+                        break;
+                    case 2:
+                        progressDialog.setMessage("正在加载,请稍后..");
+                        break;
+                    case 3:
+                        i = 0;
+                        progressDialog.setMessage("正在加载,请稍后...");
+                        break;
+                    default:
                 }
             }
         }, 0, 800, TimeUnit.MILLISECONDS);

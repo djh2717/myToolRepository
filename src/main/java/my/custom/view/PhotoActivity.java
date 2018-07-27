@@ -45,10 +45,11 @@ import my.util.BitmapCompress;
  * 此Activity用于封装从相册或者相机获取一张图片,可以选择对图片进行裁剪后返回或者直接返回图片.
  * 裁剪类别有:圆形,正方形. 通过公有字段传入数据到intent来决定裁剪类别.
  * notice: Remember to register in manifest.
+ * notice: Also need a fileProvider if you use this after 7.0, authority is "avatar.author".
  *
  * @author 15445
  */
-public class PhotoToolActivity extends AppCompatActivity {
+public class PhotoActivity extends AppCompatActivity {
 
     @BindView(R.id.weChatImageView)
     WeChatCrop weChatCrop;
@@ -91,7 +92,7 @@ public class PhotoToolActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_photo_tool);
+        setContentView(R.layout.activity_photo);
         ButterKnife.bind(this);
         setTitle("");
         setSupportActionBar(toolBar);
@@ -171,7 +172,7 @@ public class PhotoToolActivity extends AppCompatActivity {
 
     private void openCamera() {
         Uri avatarUri;
-        if (Build.VERSION.SDK_INT < 24) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             avatarUri = Uri.fromFile(avatarFile);
         } else {
             avatarUri = FileProvider.getUriForFile(this, "avatar.author", avatarFile);

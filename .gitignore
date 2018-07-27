@@ -26,7 +26,7 @@
 
 /src/main/res/layout/*
 #主要在这里插入不忽略的布局文件
-!/src/main/res/layout/activity_photo_tool.xml
+!/layout/activity_photo.xml
 
 
 
