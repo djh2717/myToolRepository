@@ -1,4 +1,4 @@
-package my.util;
+package my.utils;
 
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;

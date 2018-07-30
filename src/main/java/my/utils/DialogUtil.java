@@ -1,4 +1,4 @@
-package my.util;
+package my.utils;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;

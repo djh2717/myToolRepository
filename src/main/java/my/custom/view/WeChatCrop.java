@@ -19,8 +19,8 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
 import advanced.demo.R;
-import my.util.MatrixUtil;
-import my.util.PxUtil;
+import my.utils.MatrixUtil;
+import my.utils.PxUtil;
 
 /**
  * Imitate the cropped image of WeChat. Directly use in xml.

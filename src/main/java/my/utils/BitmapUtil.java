@@ -1,7 +1,9 @@
-package my.util;
+package my.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -16,7 +18,7 @@ import java.util.Objects;
  *
  * @author 15445
  */
-public class BitmapCompress {
+public class BitmapUtil {
 
     public static Bitmap fromResources(int resId, int desireWidth, int desireHeight) {
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -79,6 +81,15 @@ public class BitmapCompress {
         //inputStream没有实现mark和reset,要通过其子类来实现,
 
         return BitmapFactory.decodeFile(Objects.requireNonNull(tempFile).getPath(), options);
+    }
+
+    public static Drawable bitmapToDrawable(Bitmap bitmap) {
+        return new BitmapDrawable(bitmap);
+    }
+
+    public static Bitmap drawableToBitmap(Drawable drawable) {
+        BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+        return bitmapDrawable.getBitmap();
     }
 
     /**

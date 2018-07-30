@@ -1,4 +1,4 @@
-package my.util;
+package my.utils;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;

@@ -39,7 +39,7 @@ import java.util.Objects;
 import advanced.demo.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import my.util.BitmapCompress;
+import my.utils.BitmapUtil;
 
 /**
  * 此Activity用于封装从相册或者相机获取一张图片,可以选择对图片进行裁剪后返回或者直接返回图片.
@@ -265,7 +265,7 @@ public class PhotoActivity extends AppCompatActivity {
             public void onGlobalLayout() {
                 //获取返回的图片,要在OnGlobalLayoutListener内部加载bitmap
                 //不然无法获取宽高进行压缩
-                Bitmap bitmap = BitmapCompress.fromFile(avatarFile.getPath(),
+                Bitmap bitmap = BitmapUtil.fromFile(avatarFile.getPath(),
                         weChatCrop.getWidth(), weChatCrop.getHeight());
                 // Rotate the image.
                 // In order to adapt to the SamSung mobile phone after taking pictures to rotate

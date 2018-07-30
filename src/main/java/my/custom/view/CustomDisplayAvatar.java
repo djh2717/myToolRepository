@@ -17,7 +17,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.animation.DecelerateInterpolator;
 
-import my.util.MatrixUtil;
+import my.utils.MatrixUtil;
 
 /**
  * Imitate the avatar of WeChat. Directly use in xml.

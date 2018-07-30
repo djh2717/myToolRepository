@@ -1,4 +1,4 @@
-package my.util;
+package my.utils;
 
 import android.annotation.TargetApi;
 import android.app.Notification;

@@ -1,4 +1,4 @@
-package my.util;
+package my.utils;
 
 import android.annotation.SuppressLint;
 import android.widget.Toast;

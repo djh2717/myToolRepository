@@ -1,4 +1,4 @@
-package my.util;
+package my.utils;
 
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
