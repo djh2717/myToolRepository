@@ -19,20 +19,11 @@ import java.io.InputStream;
 public class IoUtil {
 
     /**
-     * Use to read content from internet.
+     * Use to read content from file, the file default location at files dir.
      */
-    public static byte[] readFromInternet(InputStream inputStream) {
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
-        return read(bufferedInputStream);
-    }
-
-    /**
-     * Use to read content from file.
-     */
-    public static byte[] readFile(String path) {
-        File file = new File(path);
+    public static byte[] readFile(String fileName) {
         try {
-            return read(new BufferedInputStream(new FileInputStream(file)));
+            return read(fileName);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -40,27 +31,20 @@ public class IoUtil {
     }
 
     /**
-     * Use to save content to the path, if success return true.
+     * Use to save content to the files dir, if success return true.
      */
-    public static boolean saveToFile(String path, byte[] content) {
-        File file = new File(path);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            return save(new BufferedOutputStream(new FileOutputStream(file)), content);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return false;
+    public static boolean saveToFile(String fileName, byte[] content) {
+        return save(fileName, content);
     }
 
-    private static byte[] read(BufferedInputStream bufferedInputStream) {
+    private static byte[] read(String fileName) throws FileNotFoundException {
+
+        File file = new File(MyApplication.getContext().getFilesDir(), fileName);
+
+        InputStream inputStream = new FileInputStream(file);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+
         int hasRead;
         byte[] bytes = new byte[1024];
         try {
@@ -73,6 +57,7 @@ public class IoUtil {
             e.printStackTrace();
         } finally {
             try {
+                inputStream.close();
                 bufferedInputStream.close();
                 byteArrayOutputStream.close();
             } catch (IOException e) {
@@ -82,8 +67,14 @@ public class IoUtil {
         return null;
     }
 
-    private static boolean save(BufferedOutputStream bufferedOutputStream, byte[] content) {
+    private static boolean save(String fileName, byte[] content) {
+        File file = new File(MyApplication.getContext().getFilesDir(), fileName);
+        BufferedOutputStream bufferedOutputStream = null;
         try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(file));
             bufferedOutputStream.write(content);
             bufferedOutputStream.flush();
             return true;
@@ -91,7 +82,9 @@ public class IoUtil {
             e.printStackTrace();
         } finally {
             try {
-                bufferedOutputStream.close();
+                if (bufferedOutputStream != null) {
+                    bufferedOutputStream.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
