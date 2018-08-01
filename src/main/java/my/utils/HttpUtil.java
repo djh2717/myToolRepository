@@ -61,11 +61,12 @@ public class HttpUtil {
 
     private static void getSmallData(final String url, final Handler handler) {
         sExecutorService.execute(new Runnable() {
-            private HttpURLConnection httpURLConnection = getConnect(url, handler, -1);
+            private HttpURLConnection httpURLConnection;
 
             @Override
             public void run() {
                 try {
+                    httpURLConnection = getConnect(url, handler, -1);
                     if (httpURLConnection == null) {
                         return;
                     }

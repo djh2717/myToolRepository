@@ -1,0 +1,56 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.Design.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <!--Solve APP short white screen at startup-->
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+
+
+
+
+
+    <!--This set the tabLayout text.-->
+    <style name="TabText" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!--Status bar setting, only have the following three situations-->
+
+    <!--First:  You need hide the status bar, like a full screen game.-->
+    <!--Second:  You need a transparent status bar, such as the CollapsingToolbarLayout-->
+    <!--Third:  Normal status bar, set the color same as the tool bar.-->
+
+    <!--用于Activity全屏显示,且状态栏不会自动出来,可以手动划出来,然后会自动隐藏
+    如果只要实现沉浸式状态栏,在java代码中实现即可-->
+    <style name="NoBar" parent="AppTheme">
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+
+    <!--This can let toolBar popup location at bottom of toolBar.-->
+    <style name="ToolbarPopupTheme" parent="@style/ThemeOverlay.AppCompat.Dark">
+        <!--<item name="android:colorBackground">#000000</item>--> <!--这里可以改变菜单的背景色-->
+        <item name="actionOverflowMenuStyle">@style/OverflowMenuStyle</item>
+        <!--新增一个item，用于控制menu-->
+    </style>
+
+    <style name="OverflowMenuStyle" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
+        <item name="overlapAnchor">false</item>  <!--把该属性改为false即可使menu位置位于toolbar之下-->
+    </style>
+
+
+    <!--Use to set the collapsed tool bar layout when is collapsed-->
+    <style name="collapsedTitleTextAppearance" parent="TextAppearance.AppCompat">
+        <item name="textSize">18sp</item>
+        <item name="textColor">#fff</item>
+    </style>
+
+</resources>
