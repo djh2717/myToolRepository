@@ -17,7 +17,7 @@ import android.support.v4.content.LocalBroadcastManager;
  * @author Djh on 2018/7/27 11:05
  * E-Mail ：1544579459@qq.com
  */
-public class BroadcastUtil {
+public class LocalBroadcastUtil {
 
     @SuppressLint("StaticFieldLeak")
     private static final Context CONTEXT = MyApplication.getContext();

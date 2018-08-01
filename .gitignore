@@ -1,18 +1,18 @@
 ﻿*.iml
 /build
-/build.gradle
 /libs/
-/proguard-rules.pro
 /src/test/
+/build.gradle
 /src/androidTest/
+/proguard-rules.pro
 
 #此方式可以实现忽略一个文件夹中的部分文件夹
 #首先忽略一个目录下的所有,然后再指定不忽略的文件夹,然后再忽略这个文件夹中的所有,以此类推
 #不忽略可以指定多个.
 
 /src/main/*
-!/src/main/java/
 !/src/main/res/
+!/src/main/java/
 
 /src/main/java/*
 #这里插入不忽略的java代码
@@ -22,23 +22,32 @@
 
 /src/main/res/*
 !/src/main/res/layout/
-!/src/main/res/drawable/
 !/src/main/res/values/
+!/src/main/res/drawable/
 
 /src/main/res/layout/*
 #这里插入不忽略的布局文件
 !/src/main/res/layout/activity_photo.xml
 !/src/main/res/layout/collapsing_toolbar_layout.xml
+!/src/main/res/layout/net_work_not_connect_hint.xml
+
+
 
 
 /src/main/res/drawable/*
 #这里插入不忽略的图片文件
 !/src/main/res/drawable/grade.png
 !/src/main/res/drawable/grade2.png
+!/src/main/res/drawable/sign_point.png
+!/src/main/res/drawable/right_arrow.png
+!/src/main/res/drawable/net_work_listener_selected.xml
+
+
 
 
 
 /src/main/res/values/*
 #这里插入不忽略的values资源
 !/src/main/res/values/styles.xml
+
 

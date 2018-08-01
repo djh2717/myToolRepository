@@ -1,5 +1,7 @@
 package my.utils;
 
+import android.os.Environment;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * A io util, use to read or save content.
@@ -35,6 +38,18 @@ public class IoUtil {
      */
     public static boolean saveToFile(String fileName, byte[] content) {
         return save(fileName, content);
+    }
+
+    /**
+     * If external store is available, return the path, otherwise return null.
+     */
+    public static String isExternalStoreAvailable() {
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
+                || !Environment.isExternalStorageRemovable()) {
+
+            return Objects.requireNonNull(MyApplication.getContext().getExternalCacheDir()).getPath();
+        }
+        return null;
     }
 
     private static byte[] read(String fileName) throws FileNotFoundException {

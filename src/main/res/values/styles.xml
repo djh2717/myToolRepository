@@ -12,10 +12,6 @@
     </style>
 
 
-
-
-
-
     <!--This set the tabLayout text.-->
     <style name="TabText" parent="TextAppearance.Design.Tab">
         <item name="android:textSize">20sp</item>
@@ -48,9 +44,9 @@
 
 
     <!--Use to set the collapsed tool bar layout when is collapsed-->
-    <style name="collapsedTitleTextAppearance" parent="TextAppearance.AppCompat">
-        <item name="textSize">18sp</item>
-        <item name="textColor">#fff</item>
+    <style name="collapsedTitleTextAppearance" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">#fff</item>
     </style>
 
 </resources>
