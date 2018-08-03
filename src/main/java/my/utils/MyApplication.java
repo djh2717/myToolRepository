@@ -3,8 +3,12 @@ package my.utils;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
+import android.support.annotation.Nullable;
 
+import com.orhanobut.logger.AndroidLogAdapter;
+import com.orhanobut.logger.FormatStrategy;
 import com.orhanobut.logger.Logger;
+import com.orhanobut.logger.PrettyFormatStrategy;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 
@@ -28,7 +32,21 @@ public class MyApplication extends Application {
         super.onCreate();
         context = getApplicationContext();
         LitePal.initialize(context);
-        Logger.init("Log");
+
+
+        // Initialize Logger.
+        FormatStrategy formatStrategy = PrettyFormatStrategy
+                .newBuilder()
+                .tag("Log")
+                .build();
+        Logger.addLogAdapter(new AndroidLogAdapter(formatStrategy) {
+            @Override
+            public boolean isLoggable(int priority, @Nullable String tag) {
+                return true;
+            }
+        });
+
+        // Initialize LeakCanary.
         refWatcher = installRefWatcher();
         //EventBus.builder().addIndex(new MyEventBusIndex()).installDefaultEventBus();
     }

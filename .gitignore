@@ -50,6 +50,7 @@
 /src/main/res/values/*
 #这里插入不忽略的values资源
 !/src/main/res/values/styles.xml
+!/src/main/res/values/my_custom_view_attrs.xml
 
 
 
