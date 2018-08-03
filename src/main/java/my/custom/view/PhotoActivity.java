@@ -265,7 +265,7 @@ public class PhotoActivity extends AppCompatActivity {
             public void onGlobalLayout() {
                 //获取返回的图片,要在OnGlobalLayoutListener内部加载bitmap
                 //不然无法获取宽高进行压缩
-                Bitmap bitmap = BitmapUtil.fromFile(avatarFile.getPath(),
+                Bitmap bitmap = BitmapUtil.getBitmapFromFile(avatarFile.getPath(),
                         weChatCrop.getWidth(), weChatCrop.getHeight());
                 // Rotate the image.
                 // In order to adapt to the SamSung mobile phone after taking pictures to rotate

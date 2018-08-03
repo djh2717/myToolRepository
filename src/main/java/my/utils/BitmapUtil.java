@@ -11,16 +11,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.Objects;
 
 /**
- * Used for bitmap compress.
+ * A bitmap util, use to compress bitmap and other operation.
  *
- * @author 15445
+ * @author djh
  */
 public class BitmapUtil {
 
-    public static Bitmap fromResources(int resId, int desireWidth, int desireHeight) {
+    public static Bitmap getBitmapFromResources(int resId, int desireWidth, int desireHeight) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeResource(MyApplication.getContext().getResources(), resId, options);
@@ -30,7 +31,7 @@ public class BitmapUtil {
     }
 
 
-    public static Bitmap fromFile(String pathName, int desireWidth, int desireHeight) {
+    public static Bitmap getBitmapFromFile(String pathName, int desireWidth, int desireHeight) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(pathName, options);
@@ -44,9 +45,8 @@ public class BitmapUtil {
      * 如果不采用临时文件,在真正加载到内存之前,会解析一次,然后压缩优化后又会解析一次,
      * 使用了两次inputStream,需要进行mark和reset处理,而且第二次加载又是从网络获取
      * 会浪费流量而且费时.
-     * //todo 写一个BitmapUtil类来处理所有的bitmap加载,使用磁盘和内存缓存机制,封装好压缩处理.
      */
-    public static Bitmap fromStream(InputStream inputStream, int desireWidth, int desireHeight) {
+    public static Bitmap getBitmapFromStream(InputStream inputStream, int desireWidth, int desireHeight) {
         //创建临时文件,把图片加载到临时文件中保存
         File tempFile = null;
         BufferedInputStream bufferedInputStream;
@@ -83,13 +83,41 @@ public class BitmapUtil {
         return BitmapFactory.decodeFile(Objects.requireNonNull(tempFile).getPath(), options);
     }
 
+    public static Bitmap getBitmapFromByteArray(byte[] bytes, int desireWidth, int desireHeight) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+        options.inSampleSize = getInSampleSize(options, desireWidth, desireHeight);
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+    }
+
     public static Drawable bitmapToDrawable(Bitmap bitmap) {
-        return new BitmapDrawable(bitmap);
+        return new BitmapDrawable(MyApplication.getContext().getResources(), bitmap);
     }
 
     public static Bitmap drawableToBitmap(Drawable drawable) {
         BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
         return bitmapDrawable.getBitmap();
+    }
+
+    /**
+     * Use to change bitmap to  bytes.
+     */
+    public static byte[] bitmapToBytes(Bitmap bitmap) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(bitmap.getAllocationByteCount());
+        bitmap.copyPixelsToBuffer(byteBuffer);
+        return byteBuffer.array();
+    }
+
+    /**
+     * If you use BitmapFactory.decodeByteArray may can not get the bitmap, because
+     * the bytes may not included the image information, so you need provide the info.
+     */
+    public static Bitmap bytesToBitmap(byte[] bytes, int width, int height) {
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        bitmap.copyPixelsFromBuffer(ByteBuffer.wrap(bytes));
+        return bitmap;
     }
 
     /**

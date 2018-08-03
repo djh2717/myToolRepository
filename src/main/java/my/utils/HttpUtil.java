@@ -2,6 +2,7 @@ package my.utils;
 
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.ProgressBar;
 
@@ -16,8 +17,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A http util, packaged thread pool and use handler mutual with main thread, this can
@@ -25,7 +31,6 @@ import java.util.concurrent.Executors;
  * large data will need the caller provide a file name to store the data.
  *
  * @author djh on  2018/7/30 18:14
- * @E-Mail 1544579459@qq.com
  */
 public class HttpUtil {
     private static boolean sStopGet = false;
@@ -33,15 +38,39 @@ public class HttpUtil {
     private static ExecutorService sExecutorService;
     private static Map<String, HttpURLConnection> sConnectionMap;
 
+    //Initialize the thread pool, reference on async tack.
     static {
-        sConnectionMap = new HashMap<>();
-        sExecutorService = Executors.newCachedThreadPool();
+        ThreadFactory threadFactory = new ThreadFactory() {
+            private final AtomicInteger mCount = new AtomicInteger(1);
+
+            @Override
+            public Thread newThread(@NonNull Runnable r) {
+                return new Thread(r, "HttpUtil-Custom-ThreadPool #" + mCount.getAndIncrement());
+            }
+        };
+
+        BlockingQueue<Runnable> poolWorkQueue = new LinkedBlockingQueue<>(128);
+
+        // We want at least 2 threads and at most 4 threads in the core pool,
+        // preferring to have 1 less than the CPU count to avoid saturating
+        // the CPU with background work
+        int cpuCount = Runtime.getRuntime().availableProcessors();
+        int corePoolSize = Math.max(2, Math.min(cpuCount - 1, 4));
+        int maxPoolSize = cpuCount * 2 + 1;
+        int keepAliveTime = 30;
+        // Initialize the thread pool.
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveTime,
+                TimeUnit.SECONDS, poolWorkQueue, threadFactory);
+        // Allow core thread time out, if exceed 30 seconds, the thread will be
+        // terminal, when new task arrive, new thread will be create.
+        threadPoolExecutor.allowCoreThreadTimeOut(true);
+        sExecutorService = threadPoolExecutor;
     }
 
     /**
      * Get request, use handler send the response result to main thread.
      */
-    public static void get(final String url, final Handler handler) {
+    public static void get(String url, Handler handler) {
         getSmallData(url, handler);
     }
 
@@ -57,6 +86,66 @@ public class HttpUtil {
      */
     public static void get(String url, Handler handler, String fileName) {
         getLargeData(url, handler, fileName, null);
+    }
+
+    /**
+     * This use to do block operate, you need use a flag to exit the block if the
+     * block will not automatic withdrawal.
+     */
+    public static void doBlockOperate(Runnable runnable) {
+        sExecutorService.execute(runnable);
+    }
+
+    /**
+     * This should use where you first use the get method, when the activity or fragment
+     * destroy, you should use this to shutdown the inner cache thread pool;
+     */
+    public static void shutDownNow() {
+        if (sExecutorService != null) {
+            sExecutorService.shutdownNow();
+        }
+    }
+
+    /**
+     * When the user stop get the data, use this disconnect.
+     */
+    public static void stopGet(String... urls) {
+        for (String url : urls) {
+            HttpURLConnection httpURLConnection = null;
+            if (sConnectionMap != null) {
+                httpURLConnection = sConnectionMap.get(url);
+            }
+            if (httpURLConnection != null) {
+                sConnectionMap.remove(url);
+                httpURLConnection.disconnect();
+                sStopGet = true;
+            }
+        }
+
+    }
+
+    /**
+     * Cancel get, if file name is not null, will delete the file.
+     */
+    public static void cancelGet(String url, @Nullable String fileName) {
+        HttpURLConnection httpURLConnection = null;
+        if (sConnectionMap != null) {
+            httpURLConnection = sConnectionMap.get(url);
+        }
+        if (httpURLConnection != null) {
+            sConnectionMap.remove(url);
+            httpURLConnection.disconnect();
+            sCancelGet = true;
+        }
+        if (fileName != null) {
+            File file = new File(MyApplication.getContext().getFilesDir(), fileName);
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+        if (!sCancelGet) {
+            ToastUtil.showToast("取消下载");
+        }
     }
 
     private static void getSmallData(final String url, final Handler handler) {
@@ -91,10 +180,10 @@ public class HttpUtil {
             @Override
             public void run() {
                 long alreadyReadSize;
-                File file = new File(MyApplication.getContext().getFilesDir(), fileName);
                 HttpURLConnection httpURLConnection;
+                File file = new File(MyApplication.getContext().getFilesDir(), fileName);
 
-                // Judge the file weather already exists.
+                // Judge the file whether already exists.
                 if (!file.exists() || file.length() == 0) {
                     try {
                         file.createNewFile();
@@ -111,6 +200,9 @@ public class HttpUtil {
                 }
                 // Put this connection to the map, when user stop get the data, get
                 // the connection and disconnect.
+                if (sConnectionMap == null) {
+                    sConnectionMap = new HashMap<>();
+                }
                 sConnectionMap.put(url, httpURLConnection);
                 // Start download.
                 boolean success = readLargeDataAndSaveToFile(file, httpURLConnection, handler, progressBar);
@@ -133,47 +225,6 @@ public class HttpUtil {
     }
 
     /**
-     * This should use where you first use the get method, when the activity or fragment
-     * destroy, you should use this to shutdown the inner cache thread pool;
-     */
-    public static void shutDownNow() {
-        sExecutorService.shutdownNow();
-    }
-
-    /**
-     * When the user stop get the data, use this disconnect.
-     */
-    public static void stopGet(String url) {
-        HttpURLConnection httpURLConnection = sConnectionMap.get(url);
-        if (httpURLConnection != null) {
-            sConnectionMap.remove(url);
-            httpURLConnection.disconnect();
-            sStopGet = true;
-        }
-    }
-
-    /**
-     * Cancel get, if file name is not null, will delete the file.
-     */
-    public static void cancelGet(String url, @Nullable String fileName) {
-        HttpURLConnection httpURLConnection = sConnectionMap.get(url);
-        if (httpURLConnection != null) {
-            sConnectionMap.remove(url);
-            httpURLConnection.disconnect();
-            sCancelGet = true;
-        }
-        if (fileName != null) {
-            File file = new File(MyApplication.getContext().getFilesDir(), fileName);
-            if (file.exists()) {
-                file.delete();
-            }
-        }
-        if (!sCancelGet) {
-            ToastUtil.showToast("取消下载");
-        }
-    }
-
-    /**
      * Get the http connection.
      */
     private static HttpURLConnection getConnect(String url, Handler handler, long alreadyReadSize) {
@@ -188,7 +239,7 @@ public class HttpUtil {
                 httpURLConnection.setRequestProperty("range", "bytes=" + alreadyReadSize + "-");
             }
             httpURLConnection.connect();
-            final int responseCode = httpURLConnection.getResponseCode();
+            int responseCode = httpURLConnection.getResponseCode();
             // If request fail, show toast and return.
             if (responseCode != 200 && responseCode != 206) {
                 showToast(handler, "请求失败" + responseCode);
@@ -260,7 +311,7 @@ public class HttpUtil {
                     });
                 }
 
-                // Save to file.
+                // Write to file.
                 bufferedOutputStream.write(bytes, 0, hasRead);
             }
             bufferedOutputStream.flush();

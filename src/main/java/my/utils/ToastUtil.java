@@ -1,6 +1,10 @@
 package my.utils;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
+import android.support.design.widget.Snackbar;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 /**
@@ -11,6 +15,7 @@ import android.widget.Toast;
  */
 public class ToastUtil {
     private static Toast toast;
+    private static Snackbar sSnackbar;
 
     @SuppressLint("ShowToast")
     public static void showToast(String content) {
@@ -21,4 +26,17 @@ public class ToastUtil {
         }
         toast.show();
     }
+
+    public static void showSnackbar(String content, ViewGroup viewGroup, String actionContent, View.OnClickListener onClickListener) {
+        if (sSnackbar == null) {
+            sSnackbar = Snackbar.make(viewGroup, content, Snackbar.LENGTH_LONG)
+                    .setActionTextColor(Color.WHITE)
+                    .setAction(actionContent, onClickListener);
+        } else {
+            sSnackbar.setActionTextColor(Color.WHITE);
+            sSnackbar.setText(content).setAction(actionContent, onClickListener);
+        }
+        sSnackbar.show();
+    }
+
 }
