@@ -21,6 +21,7 @@
 
 
 /src/main/res/*
+!/src/main/res/menu/
 !/src/main/res/layout/
 !/src/main/res/values/
 !/src/main/res/drawable/
@@ -51,3 +52,7 @@
 !/src/main/res/values/styles.xml
 
 
+
+/src/main/res/menu/*
+#这里插入不忽略的菜单文件
+!/src/main/res/menu/crop_menu.xml
