@@ -43,7 +43,7 @@ public class CacheUtil {
         sContext = MyApplication.getContext();
         // If you do not overwrite the sizeOf method, the cache size is
         // value number, at there is 20.
-        sLruCache = new LruCache<String, Object>(20);
+        sLruCache = new LruCache<>(20);
         try {
             // Initialize disk lru cache, the cache size is 20M.
             sDiskLruCache = DiskLruCache.open(getCacheDir(), getAppVersion(), 1, 20 * 1024 * 1024);

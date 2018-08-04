@@ -36,7 +36,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Objects;
 
-import advanced.demo.R;
+import my.demo.two.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import my.utils.BitmapUtil;

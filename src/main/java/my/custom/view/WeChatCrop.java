@@ -18,7 +18,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
-import advanced.demo.R;
+import my.demo.two.R;
 import my.utils.MatrixUtil;
 import my.utils.PxUtil;
 
