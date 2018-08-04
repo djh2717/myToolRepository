@@ -11,6 +11,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -41,6 +46,30 @@ public class IoUtil {
     }
 
     /**
+     * Save objects to file, if is append, will auto remove the null object
+     * at then end of file.
+     */
+    public static void saveObjects(String fileName, Collection<Object> objects, boolean append) {
+        try {
+            saveObjectToFile(fileName, objects, append);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Read objects from file, may return null if a exception is occur.
+     */
+    public static List<Object> readObjects(String fileName) {
+        try {
+            return readObjectFromFile(fileName);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * If external store is available, return the path, otherwise return null.
      */
     public static String isExternalStoreAvailable() {
@@ -51,6 +80,8 @@ public class IoUtil {
         }
         return null;
     }
+
+//--------------------------------------------------------------------------------------------------
 
     private static byte[] read(String fileName) throws FileNotFoundException {
 
@@ -107,5 +138,85 @@ public class IoUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * Save objects to file, support for appending.
+     */
+    private static void saveObjectToFile(String fileName, Collection<Object> objects, boolean append) throws IOException, ClassNotFoundException {
+        File file = new File(MyApplication.getContext().getFilesDir(), fileName);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        ObjectInputStream objectInputStream = null;
+        ObjectOutputStream objectOutputStream = null;
+        try {
+            if (append) {
+                // If file length large than zero, need remove the null Object
+                // at the end of file.
+                if (file.length() > 0) {
+                    List<Object> objectList = new ArrayList<>();
+                    // Remove the null object at then end of file.
+                    objectInputStream = new ObjectInputStream(new FileInputStream(file));
+                    Object object;
+                    while ((object = objectInputStream.readObject()) != null) {
+                        objectList.add(object);
+                    }
+                    // Then save all object to file.
+                    objectOutputStream = new ObjectOutputStream(new FileOutputStream(file));
+                    for (Object o : objectList) {
+                        objectOutputStream.writeObject(o);
+                    }
+                    // Append the new object to the file.
+                    for (Object o : objects) {
+                        objectOutputStream.writeObject(o);
+                    }
+                } else {
+                    objectOutputStream = new ObjectOutputStream(new FileOutputStream(file));
+                    // If file is empty, direct save objects to file.
+                    for (Object object : objects) {
+                        objectOutputStream.writeObject(object);
+                    }
+                }
+            } else {
+                objectOutputStream = new ObjectOutputStream(new FileOutputStream(file));
+                // Save the objects to file.
+                for (Object object : objects) {
+                    objectOutputStream.writeObject(object);
+                }
+            }
+            // Append a null object at the end of file.
+            objectOutputStream.writeObject(null);
+            objectOutputStream.flush();
+        } finally {
+            if (objectOutputStream != null) {
+                objectOutputStream.close();
+            }
+            if (objectInputStream != null) {
+                objectInputStream.close();
+            }
+        }
+    }
+
+    private static List<Object> readObjectFromFile(String fileName) throws IOException, ClassNotFoundException {
+        File file = new File(MyApplication.getContext().getFilesDir(), fileName);
+        if (!file.exists()) {
+            throw new RuntimeException("File is not exists!");
+        }
+        ObjectInputStream objectInputStream = null;
+        try {
+            // Read object from file and put it to list, then return.
+            List<Object> objectList = new ArrayList<>();
+            objectInputStream = new ObjectInputStream(new FileInputStream(file));
+            Object object;
+            while ((object = objectInputStream.readObject()) != null) {
+                objectList.add(object);
+            }
+            return objectList;
+        } finally {
+            if (objectInputStream != null) {
+                objectInputStream.close();
+            }
+        }
     }
 }

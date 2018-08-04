@@ -84,6 +84,7 @@ public class ActivityUtil {
         startHermit(fromActivity, intentAction, true, false, requestCode);
     }
 
+//--------------------------------------------------------------------------------------------------
 
     private static void startDirect(Activity fromActivity, Class toActivity, boolean needResult, boolean customAnimator, int requestCode) {
         Intent intent = new Intent(fromActivity, toActivity);

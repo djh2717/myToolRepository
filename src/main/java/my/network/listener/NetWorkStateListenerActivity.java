@@ -28,6 +28,7 @@ import my.utils.PxUtil;
  *
  * @author djh on 2018-8-1 13:06:23
  */
+@SuppressLint("Registered")
 public class NetWorkStateListenerActivity extends AppCompatActivity {
 
     /**

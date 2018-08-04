@@ -168,6 +168,7 @@ public class CacheUtil {
         }
     }
 
+//--------------------------------------------------------------------------------------------------
 
     private static void startAutoClear() {
         if (SharedPreferencesUtil.get().getBoolean(OPEN_AUTO_CLEAR_CACHE, false)) {

@@ -55,6 +55,16 @@ public class MyApplication extends Application {
         return context;
     }
 
+    public static RefWatcher getRefWatcher() {
+        MyApplication myApplication = (MyApplication) getContext();
+        return myApplication.refWatcher;
+        //在Activity或fragment的onDestroy中如下使用
+        //RefWatcher refWatcher = MyApplication.getRefWatcher();
+        //refWatcher.watch(this);
+    }
+
+//--------------------------------------------------------------------------------------------------
+
     private RefWatcher installRefWatcher() {
         if (LeakCanary.isInAnalyzerProcess(this)) {
             //如果该进程用来给LeakCanary进行堆分析的,则RefWatcher不可用
@@ -63,11 +73,4 @@ public class MyApplication extends Application {
         return LeakCanary.install(this);
     }
 
-    public static RefWatcher getRefWatcher() {
-        MyApplication myApplication = (MyApplication) getContext();
-        return myApplication.refWatcher;
-        //在Activity或fragment的onDestroy中如下使用
-        //RefWatcher refWatcher = MyApplication.getRefWatcher();
-        //refWatcher.watch(this);
-    }
 }

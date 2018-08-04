@@ -148,6 +148,8 @@ public class HttpUtil {
         }
     }
 
+//--------------------------------------------------------------------------------------------------
+
     private static void getSmallData(final String url, final Handler handler) {
         sExecutorService.execute(new Runnable() {
             private HttpURLConnection httpURLConnection;

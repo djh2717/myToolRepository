@@ -45,6 +45,8 @@ public class NotificationUtil {
         send(context, activity, channelId, iconId, contentTitle, content, needLargeIcon, priority, notificationId);
     }
 
+//--------------------------------------------------------------------------------------------------
+
     /**
      * Send notification.
      */

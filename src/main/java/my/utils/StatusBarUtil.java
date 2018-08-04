@@ -32,6 +32,8 @@ public class StatusBarUtil {
         setStatusBar(activity, true);
     }
 
+//--------------------------------------------------------------------------------------------------
+
     private static void setStatusBar(Activity activity, boolean hide) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             View view = activity.getWindow().getDecorView();
