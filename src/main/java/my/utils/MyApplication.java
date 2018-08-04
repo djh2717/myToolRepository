@@ -46,7 +46,7 @@ public class MyApplication extends Application {
             }
         });
 
-
+        // Initialize LeakCanary.
         refWatcher = installRefWatcher();
         //EventBus.builder().addIndex(new MyEventBusIndex()).installDefaultEventBus();
     }

@@ -16,6 +16,9 @@ import java.io.ObjectOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A cache util, use the disk cache and memory cache to implement cache frame.
@@ -25,6 +28,7 @@ import java.util.Objects;
  * @E-Mail 1544579459@qq.com
  */
 public class CacheUtil {
+
 
     @SuppressLint("StaticFieldLeak")
     private static Context sContext;
@@ -39,6 +43,14 @@ public class CacheUtil {
      */
     private static LruCache<String, Object> sLruCache;
 
+    /**
+     * Use to automatic clear cache, if open, automatically clear the
+     * memory and disk cache every ten minutes.
+     */
+    private static ScheduledExecutorService sAutomaticTimingClearCache;
+
+    private static final String OPEN_AUTO_CLEAR_CACHE = "autoClearCache";
+
     static {
         sContext = MyApplication.getContext();
         // If you do not overwrite the sizeOf method, the cache size is
@@ -50,6 +62,32 @@ public class CacheUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // Start auto clear cache, if it is opened.
+        startAutoClear();
+    }
+
+    /**
+     * You should call this when the activity is destroy, avoid leak instance by
+     * the ScheduledExecutorService.
+     */
+    public static void exitScheduledClear() {
+        stopAutoClear();
+    }
+
+    /**
+     * If you need auto clare cache, call this, then will ten minutes clear once.
+     */
+    public static void openAutoClearCache() {
+        SharedPreferencesUtil.put().putBoolean(OPEN_AUTO_CLEAR_CACHE, true).commit();
+        startAutoClear();
+    }
+
+    /**
+     * Close auto clear cache, and shutdownNow the ScheduledExecutorService.
+     */
+    public static void closeAutoClearCache() {
+        SharedPreferencesUtil.put().putBoolean(OPEN_AUTO_CLEAR_CACHE, false).commit();
+        stopAutoClear();
     }
 
     /**
@@ -107,10 +145,11 @@ public class CacheUtil {
     }
 
     /**
-     * This will delete the all cache.
+     * This will delete the all memory and disk cache.
      */
-    public static void deleteAllCache() {
+    public static void clearAllCache() {
         try {
+            sLruCache.evictAll();
             sDiskLruCache.delete();
         } catch (IOException e) {
             e.printStackTrace();
@@ -126,6 +165,29 @@ public class CacheUtil {
             sDiskLruCache.remove(getKeyByMd5(key));
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    private static void startAutoClear() {
+        if (SharedPreferencesUtil.get().getBoolean(OPEN_AUTO_CLEAR_CACHE, false)) {
+            if (sAutomaticTimingClearCache == null) {
+                sAutomaticTimingClearCache = Executors.newScheduledThreadPool(1);
+            }
+            // Start rate clear the cache, once every ten minutes.
+            sAutomaticTimingClearCache.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    clearAllCache();
+                }
+            }, 10, 10, TimeUnit.MINUTES);
+        }
+    }
+
+    private static void stopAutoClear() {
+        if (sAutomaticTimingClearCache != null) {
+            sAutomaticTimingClearCache.shutdownNow();
+            sAutomaticTimingClearCache = null;
         }
     }
 
