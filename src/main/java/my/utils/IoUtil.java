@@ -55,7 +55,9 @@ public class IoUtil {
     private static byte[] read(String fileName) throws FileNotFoundException {
 
         File file = new File(MyApplication.getContext().getFilesDir(), fileName);
-
+        if (!file.exists()) {
+            throw new RuntimeException("File is not exists!");
+        }
         InputStream inputStream = new FileInputStream(file);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
