@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.LruCache;
 
@@ -11,8 +13,8 @@ import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
@@ -21,8 +23,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A cache util, use the disk cache and memory cache to implement cache frame.
- * notice: The cache value of object need implement Serializable interface.
+ * A cache util, use the disk cache and memory cache to implement cache frame, the
+ * cache frame is only cache the bitmap.
  *
  * @author djh on  2018/7/31 15:53
  * @E-Mail 1544579459@qq.com
@@ -41,7 +43,7 @@ public class CacheUtil {
     /**
      * Memory cache.
      */
-    private static LruCache<String, Object> sLruCache;
+    private static LruCache<String, Bitmap> sLruCache;
 
     /**
      * Use to automatic clear cache, if open, automatically clear the
@@ -54,11 +56,16 @@ public class CacheUtil {
     static {
         sContext = MyApplication.getContext();
         // If you do not overwrite the sizeOf method, the cache size is
-        // value number, at there is 20.
-        sLruCache = new LruCache<>(20);
+        // value number, we main cache the bitmap, so need overwrite the sizeOf method.
+        sLruCache = new LruCache<String, Bitmap>((int) ((Runtime.getRuntime().maxMemory()) / 8)) {
+            @Override
+            protected int sizeOf(String key, Bitmap value) {
+                return value.getByteCount();
+            }
+        };
         try {
-            // Initialize disk lru cache, the cache size is 20M.
-            sDiskLruCache = DiskLruCache.open(getCacheDir(), getAppVersion(), 1, 20 * 1024 * 1024);
+            // Initialize disk lru cache, the cache size is 30M
+            sDiskLruCache = DiskLruCache.open(getCacheDir(), getAppVersion(), 1, 30 * 1024 * 1024);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -93,20 +100,20 @@ public class CacheUtil {
     /**
      * Get the object by key, may be return null.
      */
-    public static Object get(String key) {
-        Object object = getFromMemory(key);
-        if (object == null) {
-            object = getFromDisk(key);
+    public static Bitmap get(String key) {
+        Bitmap bitmap = getFromMemory(key);
+        if (bitmap == null) {
+            bitmap = getFromDisk(key);
         }
-        return object;
+        return bitmap;
     }
 
     /**
      * Cache the value, if success will return true.
      */
-    public static boolean put(String key, Object value) {
-        if (putToDisk(key, value)) {
-            putToMemory(key, value);
+    public static boolean put(String key, Bitmap bitmap) {
+        if (putToDisk(key, bitmap)) {
+            putToMemory(key, bitmap);
             return true;
         }
         return false;
@@ -162,6 +169,7 @@ public class CacheUtil {
      */
     public static void remove(String key) {
         try {
+            sLruCache.remove(key);
             sDiskLruCache.remove(getKeyByMd5(key));
         } catch (IOException e) {
             e.printStackTrace();
@@ -193,29 +201,29 @@ public class CacheUtil {
     }
 
 
-    private static Object getFromMemory(String key) {
+    private static Bitmap getFromMemory(String key) {
         return sLruCache.get(key);
     }
 
-    private static void putToMemory(String key, Object object) {
-        sLruCache.put(key, object);
+    private static void putToMemory(String key, Bitmap bitmap) {
+        sLruCache.put(key, bitmap);
     }
 
-    private static Object getFromDisk(String key) {
-        ObjectInputStream objectInputStream = null;
+    private static Bitmap getFromDisk(String key) {
+        InputStream inputStream = null;
         try {
             // Every read operation, will add a read item in journal file.
             DiskLruCache.Snapshot snapshot = sDiskLruCache.get(getKeyByMd5(key));
             if (snapshot != null) {
-                objectInputStream = new ObjectInputStream(snapshot.getInputStream(0));
-                return objectInputStream.readObject();
+                inputStream = snapshot.getInputStream(0);
+                return BitmapFactory.decodeStream(inputStream);
             }
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (objectInputStream != null) {
+            if (inputStream != null) {
                 try {
-                    objectInputStream.close();
+                    inputStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -224,13 +232,13 @@ public class CacheUtil {
         return null;
     }
 
-    private static boolean putToDisk(String key, Object object) {
+    private static boolean putToDisk(String key, Bitmap bitmap) {
         DiskLruCache.Editor editor = null;
-        ObjectOutputStream objectOutputStream = null;
+        OutputStream outputStream = null;
         try {
             editor = sDiskLruCache.edit(getKeyByMd5(key));
-            objectOutputStream = new ObjectOutputStream(editor.newOutputStream(0));
-            objectOutputStream.writeObject(object);
+            outputStream = editor.newOutputStream(0);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
             // If write success, commit the editor, the will let the journal file add
             // a clean item.
             editor.commit();
@@ -238,9 +246,9 @@ public class CacheUtil {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (objectOutputStream != null) {
+            if (outputStream != null) {
                 try {
-                    objectOutputStream.close();
+                    outputStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

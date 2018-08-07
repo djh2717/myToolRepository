@@ -18,17 +18,20 @@
             android:fitsSystemWindows="true"
             app:collapsedTitleTextAppearance="@style/collapsedTitleTextAppearance"
             app:contentScrim="?attr/colorPrimaryDark"
-            app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed">
+            app:expandedTitleTextAppearance="@style/expendTitleTextAppearance"
+            app:layout_scrollFlags="scroll|scroll|exitUntilCollapsed">
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="230dp"
+                android:layout_height="match_parent"
+                android:fitsSystemWindows="true"
                 app:layout_collapseMode="parallax"
                 tools:ignore="ContentDescription" />
 
             <android.support.v7.widget.Toolbar
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                android:fitsSystemWindows="true"
                 app:layout_collapseMode="pin">
 
             </android.support.v7.widget.Toolbar>
@@ -38,7 +41,7 @@
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     </android.support.v4.widget.NestedScrollView>

@@ -38,34 +38,6 @@ public class HttpUtil {
     private static ExecutorService sExecutorService;
     private static Map<String, HttpURLConnection> sConnectionMap;
 
-    //Initialize the thread pool, reference on async tack.
-    static {
-        ThreadFactory threadFactory = new ThreadFactory() {
-            private final AtomicInteger mCount = new AtomicInteger(1);
-
-            @Override
-            public Thread newThread(@NonNull Runnable r) {
-                return new Thread(r, "HttpUtil-Custom-ThreadPool #" + mCount.getAndIncrement());
-            }
-        };
-
-        BlockingQueue<Runnable> poolWorkQueue = new LinkedBlockingQueue<>(128);
-
-        // We want at least 2 threads and at most 4 threads in the core pool,
-        // preferring to have 1 less than the CPU count to avoid saturating
-        // the CPU with background work
-        int cpuCount = Runtime.getRuntime().availableProcessors();
-        int corePoolSize = Math.max(2, Math.min(cpuCount - 1, 4));
-        int maxPoolSize = cpuCount * 2 + 1;
-        int keepAliveTime = 30;
-        // Initialize the thread pool.
-        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveTime,
-                TimeUnit.SECONDS, poolWorkQueue, threadFactory);
-        // Allow core thread time out, if exceed 30 seconds, the thread will be
-        // terminal, when new task arrive, new thread will be create.
-        threadPoolExecutor.allowCoreThreadTimeOut(true);
-        sExecutorService = threadPoolExecutor;
-    }
 
     /**
      * Get request, use handler send the response result to main thread.
@@ -103,6 +75,7 @@ public class HttpUtil {
     public static void shutDownNow() {
         if (sExecutorService != null) {
             sExecutorService.shutdownNow();
+            sExecutorService = null;
         }
     }
 
@@ -150,7 +123,41 @@ public class HttpUtil {
 
 //--------------------------------------------------------------------------------------------------
 
+    /**
+     * Initialize the thread pool, reference on async tack.
+     */
+    private static void initExecutorService() {
+        if (sExecutorService == null) {
+            ThreadFactory threadFactory = new ThreadFactory() {
+                private final AtomicInteger mCount = new AtomicInteger(1);
+
+                @Override
+                public Thread newThread(@NonNull Runnable r) {
+                    return new Thread(r, "HttpUtil-Custom-ThreadPool #" + mCount.getAndIncrement());
+                }
+            };
+
+            BlockingQueue<Runnable> poolWorkQueue = new LinkedBlockingQueue<>(128);
+
+            // We want at least 2 threads and at most 4 threads in the core pool,
+            // preferring to have 1 less than the CPU count to avoid saturating
+            // the CPU with background work
+            int cpuCount = Runtime.getRuntime().availableProcessors();
+            int corePoolSize = Math.max(2, Math.min(cpuCount - 1, 4));
+            int maxPoolSize = cpuCount * 2 + 1;
+            int keepAliveTime = 30;
+            // Initialize the thread pool.
+            ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveTime,
+                    TimeUnit.SECONDS, poolWorkQueue, threadFactory);
+            // Allow core thread time out, if exceed 30 seconds, the thread will be
+            // terminal, when new task arrive, new thread will be create.
+            threadPoolExecutor.allowCoreThreadTimeOut(true);
+            sExecutorService = threadPoolExecutor;
+        }
+    }
+
     private static void getSmallData(final String url, final Handler handler) {
+        initExecutorService();
         sExecutorService.execute(new Runnable() {
             private HttpURLConnection httpURLConnection;
 
@@ -178,6 +185,7 @@ public class HttpUtil {
     }
 
     private static void getLargeData(final String url, final Handler handler, final String fileName, final ProgressBar progressBar) {
+        initExecutorService();
         sExecutorService.execute(new Runnable() {
             @Override
             public void run() {
@@ -219,7 +227,7 @@ public class HttpUtil {
                         showToast(handler, "取消下载");
                         sCancelGet = false;
                     } else {
-                        showToast(handler, "下载失败");
+                        showToast(handler, "下载失败,请重试");
                     }
                 }
             }
@@ -250,6 +258,10 @@ public class HttpUtil {
             return httpURLConnection;
         } catch (IOException e) {
             e.printStackTrace();
+            // Send the exception to client.
+            Message message = handler.obtainMessage();
+            message.obj = e;
+            handler.sendMessage(message);
         }
         return null;
     }

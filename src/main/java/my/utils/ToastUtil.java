@@ -2,6 +2,7 @@ package my.utils;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,14 +28,16 @@ public class ToastUtil {
         toast.show();
     }
 
-    public static void showSnackbar(String content, ViewGroup viewGroup, String actionContent, View.OnClickListener onClickListener) {
+    public static void showSnackbar(String content, ViewGroup viewGroup, @Nullable String actionContent, @Nullable View.OnClickListener onClickListener) {
         if (sSnackbar == null) {
             sSnackbar = Snackbar.make(viewGroup, content, Snackbar.LENGTH_LONG)
-                    .setActionTextColor(Color.WHITE)
-                    .setAction(actionContent, onClickListener);
+                    .setActionTextColor(Color.WHITE);
         } else {
             sSnackbar.setActionTextColor(Color.WHITE);
-            sSnackbar.setText(content).setAction(actionContent, onClickListener);
+            sSnackbar.setText(content);
+        }
+        if (onClickListener != null) {
+            sSnackbar.setAction(actionContent, onClickListener);
         }
         sSnackbar.show();
     }
