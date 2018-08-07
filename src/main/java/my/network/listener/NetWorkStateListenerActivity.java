@@ -37,6 +37,16 @@ public class NetWorkStateListenerActivity extends AppCompatActivity {
     private AnchorViewInterface mAnchorViewInterface;
 
     /**
+     * A call back when net work available.
+     */
+    private NetWorkAvailable mNetWorkAvailable;
+
+    /**
+     * A call back when net work unavailable.
+     */
+    private NetWorkUnavailable mNetWorkUnavailable;
+
+    /**
      * The net work broadcast listener.
      */
     private NetWorkStateBroadcast mNetWorkStateBroadcast;
@@ -90,13 +100,18 @@ public class NetWorkStateListenerActivity extends AppCompatActivity {
         mAnchorViewInterface = anchorViewInterface;
     }
 
-    public interface AnchorViewInterface {
-        /**
-         * Get the hint view aim anchor view.
-         *
-         * @return The anchor view.
-         */
-        View getAnchorView();
+    /**
+     * Use to listener net work available.
+     */
+    public final void setNetWorkAvailableListener(NetWorkAvailable netWorkAvailable) {
+        mNetWorkAvailable = netWorkAvailable;
+    }
+
+    /**
+     * Use to listener net work  unAvailable.
+     */
+    public final void setNetWorkUnavailableListener(NetWorkUnavailable netWorkUnavailable) {
+        mNetWorkUnavailable = netWorkUnavailable;
     }
 
     /**
@@ -121,9 +136,17 @@ public class NetWorkStateListenerActivity extends AppCompatActivity {
             boolean isConnect = NetWorkUtil.isNetWorkConnected();
             if (isConnect) {
                 removeHintView();
+                // If client set the listener, call back it.
+                if (mNetWorkAvailable != null) {
+                    mNetWorkAvailable.isAvailable();
+                }
             } else {
                 if (!mHasAddHintView) {
                     addHintView();
+                }
+                // If client set the listener, call back it.
+                if (mNetWorkUnavailable != null) {
+                    mNetWorkUnavailable.unAvailable();
                 }
             }
         }
@@ -137,6 +160,11 @@ public class NetWorkStateListenerActivity extends AppCompatActivity {
             mHintView = getLayoutInflater().inflate(R.layout.net_work_not_connect_hint, null);
             windowManager.addView(mHintView, layoutParams);
 
+            // Set some listener of the hint view.
+            setListener(windowManager);
+        }
+
+        private void setListener(final WindowManager windowManager) {
             // When use click the hint view, jump to internet setting interface.
             mHintView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -146,6 +174,8 @@ public class NetWorkStateListenerActivity extends AppCompatActivity {
                 }
             });
 
+            // This listener is use to anchor the hint view to aim view top, and
+            // then move down the aim view a hint view height.
             mHintView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
@@ -204,5 +234,29 @@ public class NetWorkStateListenerActivity extends AppCompatActivity {
             layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
             return layoutParams;
         }
+    }
+
+    public interface AnchorViewInterface {
+        /**
+         * Get the hint view aim anchor view.
+         *
+         * @return The anchor view.
+         */
+        View getAnchorView();
+    }
+
+    public interface NetWorkAvailable {
+
+        /**
+         * This will call back when net work available.
+         */
+        void isAvailable();
+    }
+
+    public interface NetWorkUnavailable {
+        /**
+         * This will call back when net work unavailable.
+         */
+        void unAvailable();
     }
 }

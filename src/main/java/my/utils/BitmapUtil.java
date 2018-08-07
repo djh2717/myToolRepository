@@ -21,7 +21,7 @@ import java.util.Objects;
  */
 public class BitmapUtil {
 
-    public static Bitmap getBitmapFromResources(int resId, int desireWidth, int desireHeight) {
+    public static Bitmap decodeResources(int resId, int desireWidth, int desireHeight) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeResource(MyApplication.getContext().getResources(), resId, options);
@@ -31,7 +31,7 @@ public class BitmapUtil {
     }
 
 
-    public static Bitmap getBitmapFromFile(String pathName, int desireWidth, int desireHeight) {
+    public static Bitmap decodeFile(String pathName, int desireWidth, int desireHeight) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(pathName, options);
@@ -46,7 +46,7 @@ public class BitmapUtil {
      * 使用了两次inputStream,需要进行mark和reset处理,而且第二次加载又是从网络获取
      * 会浪费流量而且费时.
      */
-    public static Bitmap getBitmapFromStream(InputStream inputStream, int desireWidth, int desireHeight) {
+    public static Bitmap decodeStream(InputStream inputStream, int desireWidth, int desireHeight) {
         //创建临时文件,把图片加载到临时文件中保存
         File tempFile = null;
         BufferedInputStream bufferedInputStream;
@@ -83,7 +83,7 @@ public class BitmapUtil {
         return BitmapFactory.decodeFile(Objects.requireNonNull(tempFile).getPath(), options);
     }
 
-    public static Bitmap getBitmapFromByteArray(byte[] bytes, int desireWidth, int desireHeight) {
+    public static Bitmap decodeByteArray(byte[] bytes, int desireWidth, int desireHeight) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
