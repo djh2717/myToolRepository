@@ -13,9 +13,16 @@
 /src/main/*
 !/src/main/res/
 !/src/main/java/
+!/src/main/assets/
+
+/src/main/assets/*
+#Insert here is not ignored assets files.
+!/src/main/assets/material_loading2.json
+
+
 
 /src/main/java/*
-#这里插入不忽略的java代码
+#Insert here is not ignored java files.
 !/src/main/java/my
 
 
@@ -26,8 +33,9 @@
 !/src/main/res/values/
 !/src/main/res/drawable/
 
+
 /src/main/res/layout/*
-#这里插入不忽略的布局文件
+#Insert here is not ignored layout files.
 !/src/main/res/layout/activity_photo.xml
 !/src/main/res/layout/collapsing_toolbar_layout.xml
 !/src/main/res/layout/net_work_not_connect_hint.xml
@@ -36,11 +44,12 @@
 
 
 /src/main/res/drawable/*
-#这里插入不忽略的图片文件
+#Insert here is not ignored picture files.
 !/src/main/res/drawable/grade.png
 !/src/main/res/drawable/grade2.png
 !/src/main/res/drawable/sign_point.png
 !/src/main/res/drawable/right_arrow.png
+!/src/main/res/layout/load_more_layout.xml
 !/src/main/res/drawable/net_work_listener_selected.xml
 
 
@@ -48,12 +57,12 @@
 
 
 /src/main/res/values/*
-#这里插入不忽略的values资源
+#Insert here is not ignored values.
 !/src/main/res/values/styles.xml
 !/src/main/res/values/my_custom_view_attrs.xml
 
 
 
 /src/main/res/menu/*
-#这里插入不忽略的菜单文件
+#Insert here is not ignored menu files.
 !/src/main/res/menu/crop_menu.xml
