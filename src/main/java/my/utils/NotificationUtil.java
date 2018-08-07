@@ -12,7 +12,8 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
-import my.demo.two.R;
+import advanced.demo.R;
+
 
 /**
  * A notification util, can adaptation android 8.0

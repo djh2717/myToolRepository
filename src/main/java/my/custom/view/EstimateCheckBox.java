@@ -11,7 +11,8 @@ import android.support.v7.widget.AppCompatCheckBox;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-import my.demo.two.R;
+import advanced.demo.R;
+
 
 /**
  * A score component,implement by AppCompatCheckBox,direct use in xml.
