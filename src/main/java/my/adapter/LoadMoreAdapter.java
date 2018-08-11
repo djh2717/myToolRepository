@@ -13,8 +13,7 @@ import com.airbnb.lottie.LottieAnimationView;
 
 import java.util.Collection;
 
-import advanced.demo.R;
-
+import advanced.nioDemo.R;
 /**
  * A recyclerView adapter, use to show load more layout.
  *

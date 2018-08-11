@@ -17,6 +17,7 @@
 
 /src/main/assets/*
 #Insert here is not ignored assets files.
+!/src/main/assets/grade.json
 !/src/main/assets/material_loading2.json
 
 
@@ -39,18 +40,21 @@
 !/src/main/res/layout/activity_photo.xml
 !/src/main/res/layout/collapsing_toolbar_layout.xml
 !/src/main/res/layout/net_work_not_connect_hint.xml
+!/src/main/res/layout/batch_delete_bottom_layout.xml
 
 
 
 
 /src/main/res/drawable/*
-#Insert here is not ignored picture files.
+#Insert here is not ignored drawable files.
 !/src/main/res/drawable/grade.png
 !/src/main/res/drawable/grade2.png
 !/src/main/res/drawable/sign_point.png
 !/src/main/res/drawable/right_arrow.png
 !/src/main/res/layout/load_more_layout.xml
+!/src/main/res/drawable/select_all_button_selector.xml
 !/src/main/res/drawable/net_work_listener_selected.xml
+!/src/main/res/drawable/batch_delete_button_selector.xml
 
 
 

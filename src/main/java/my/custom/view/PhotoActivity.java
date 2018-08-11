@@ -36,7 +36,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Objects;
 
-import advanced.demo.R;
+import advanced.nioDemo.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import my.utils.BitmapUtil;
@@ -47,7 +47,7 @@ import my.utils.BitmapUtil;
  * notice: Remember to register in manifest.
  * notice: Also need a fileProvider if you use this after 7.0, authority is "avatar.author".
  *
- * @author 15445
+ * @author djh
  */
 public class PhotoActivity extends AppCompatActivity {
 
@@ -375,15 +375,6 @@ public class PhotoActivity extends AppCompatActivity {
     }
 
     /**
-     * 在此记录把byte转换为bitmap
-     * 先使用Bitmap.createBitmap()创建一个Bitmap,然后调用ByteBuffer.wrap(byte[])方法
-     * 把字节包装到缓冲区,最后调用bitmap.copyPixelsFromBuffer()
-     * <p>
-     * 以下代码把bitmap转为byte(会导致图片损坏,估计是因为像素数量丢失的原因)
-     * ByteBuffer byteBuffer = ByteBuffer.allocate(bitmap.getAllocationByteCount());
-     * bitmap.copyPixelsToBuffer(byteBuffer);
-     * byte[] bytes = byteBuffer.array();
-     * <p>
      * intent传递数据不能超过40kb;
      */
     @Override

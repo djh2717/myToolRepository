@@ -59,8 +59,7 @@ public class MyApplication extends Application {
         MyApplication myApplication = (MyApplication) getContext();
         return myApplication.refWatcher;
         //在Activity或fragment的onDestroy中如下使用
-        //RefWatcher refWatcher = MyApplication.getRefWatcher();
-        //refWatcher.watch(this);
+        //RefWatcher refWatcher = MyApplication.getRefWatcher().watch(this);
     }
 
 //--------------------------------------------------------------------------------------------------

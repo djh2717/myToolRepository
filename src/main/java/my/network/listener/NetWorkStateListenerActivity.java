@@ -16,8 +16,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 
-import advanced.demo.R;
-import my.utils.ActivityUtil;
+import advanced.nioDemo.R;import my.utils.ActivityUtil;
 import my.utils.NetWorkUtil;
 import my.utils.PxUtil;
 

@@ -1,5 +1,7 @@
 package my.utils;
 
+import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Environment;
 
 import java.io.BufferedInputStream;
@@ -13,6 +15,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.channels.FileChannel;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -77,6 +85,53 @@ public class IoUtil {
                 || !Environment.isExternalStorageRemovable()) {
 
             return Objects.requireNonNull(MyApplication.getContext().getExternalCacheDir()).getPath();
+        }
+        return null;
+    }
+
+    /**
+     * Use nio copy file is faster, this may replace the toFile if already exists.
+     */
+    public static void copyFile(File fromFile, File toFile) {
+        if (!fromFile.exists()) {
+            throw new RuntimeException("FromFile is not exists!");
+        }
+        copy(fromFile, toFile);
+    }
+
+    /**
+     * Use to search file from directory, may return null if no file is found.
+     */
+    public static List<File> searchFile(String directory, String fileName) {
+        File file = new File(directory);
+        if (!file.isDirectory() || !file.exists()) {
+            throw new RuntimeException("Directory is not exists or not is a directory!");
+        }
+        List<File> fileList;
+        // If the api is large than 26, use nio walkFileTree to search file,
+        // otherwise use the custom recursion.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Path path = file.toPath();
+            try {
+                fileList = walkFileTree(path, fileName);
+                // If not search any file, return null.
+                if (fileList.size() == 0) {
+                    return null;
+                } else {
+                    return fileList;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            fileList = new ArrayList<>();
+            // Recursive search.
+            recursiveSearch(fileList, file, fileName);
+            // If no file is found, return null.
+            if (fileList.size() == 0) {
+                return null;
+            }
+            return fileList;
         }
         return null;
     }
@@ -219,4 +274,80 @@ public class IoUtil {
             }
         }
     }
+
+    private static void copy(File fromFile, File toFile) {
+        FileChannel fromChannel = null;
+        FileChannel toChannel = null;
+        try {
+            fromChannel = new FileInputStream(fromFile).getChannel();
+            toChannel = new FileOutputStream(toFile).getChannel();
+            // Use channel to copy file.
+            fromChannel.transferTo(0, fromChannel.size(), toChannel);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (toChannel != null) {
+                try {
+                    toChannel.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fromChannel != null) {
+                try {
+                    fromChannel.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @SuppressLint("NewApi")
+    private static List<File> walkFileTree(Path rootPath, final String fileName) throws IOException {
+        // Use to store the search result.
+        final List<File> fileList = new ArrayList<>();
+
+        // This is use to visitor the file tree.
+        Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                // If the file name is contains the aim fileName, add to list.
+                if (file.getFileName().toString().contains(fileName)) {
+                    fileList.add(file.toFile());
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                // If the file is visit failed, do not deal with.
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        return fileList;
+    }
+
+    /**
+     * Recursive search the file.
+     */
+    private static void recursiveSearch(List<File> fileList, File directory, String fileName) {
+        // If the directory is empty, return.
+        if (directory.isDirectory() && directory.length() == 0) {
+            return;
+        }
+        // If is a file, and if file name contains the aim fileName, add to fileList.
+        if (directory.isFile()) {
+            if (directory.getName().contains(fileName)) {
+                fileList.add(directory);
+            }
+            return;
+        }
+        // Otherwise, recursive traversal.
+        for (File file : directory.listFiles()) {
+            recursiveSearch(fileList, file, fileName);
+        }
+
+    }
+
 }
