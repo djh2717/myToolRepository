@@ -142,7 +142,7 @@ public class OkHttpUtil {
     public static void jsonPost(String url, String json, Handler handler) {
         // If you not specify the charset, default is UTF-8.
         MediaType mediaType = MediaType.parse("application/json; charset=UTF-8");
-        // Create json request body,
+        // Create json request body.
         RequestBody requestBody = RequestBody.create(mediaType, json);
         // Create request.
         Request request = new Request.Builder()

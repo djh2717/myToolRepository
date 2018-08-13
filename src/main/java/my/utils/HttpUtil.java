@@ -61,21 +61,27 @@ public class HttpUtil {
     }
 
     /**
-     * This use to do block operate, you need use a flag to exit the block if the
-     * block will not automatic withdrawal.
-     */
-    public static void doBlockOperate(Runnable runnable) {
-        sExecutorService.execute(runnable);
-    }
-
-    /**
      * This should use where you first use the get method, when the activity or fragment
-     * destroy, you should use this to shutdown the inner cache thread pool;
+     * destroy, you should use this to shutdown the thread pool;
      */
     public static void shutDownNow() {
         if (sExecutorService != null) {
+            // Disconnect all connect.
+            for (HttpURLConnection httpURLConnection : sConnectionMap.values()) {
+                httpURLConnection.disconnect();
+            }
+            // Clean the map.
+            sConnectionMap = null;
+
+            // ShutdownNow is implement by interrupt, if the command(runnable) did
+            // throw any interrupt exception, the command will not interrupt and
+            // terminal, so we need manual disconnect every http connect.
             sExecutorService.shutdownNow();
+            while (!sExecutorService.isTerminated()) {
+                sExecutorService.shutdownNow();
+            }
             sExecutorService = null;
+
         }
     }
 
@@ -124,7 +130,7 @@ public class HttpUtil {
 //--------------------------------------------------------------------------------------------------
 
     /**
-     * Initialize the thread pool, reference on async tack.
+     * Initialize the thread pool, reference on async task.
      */
     private static void initExecutorService() {
         if (sExecutorService == null) {
@@ -211,7 +217,7 @@ public class HttpUtil {
                 // Put this connection to the map, when user stop get the data, get
                 // the connection and disconnect.
                 if (sConnectionMap == null) {
-                    sConnectionMap = new HashMap<>();
+                    sConnectionMap = new HashMap<>(16);
                 }
                 sConnectionMap.put(url, httpURLConnection);
                 // Start download.
