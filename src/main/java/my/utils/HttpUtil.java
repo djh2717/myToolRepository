@@ -174,7 +174,7 @@ public class HttpUtil {
                     if (httpURLConnection == null) {
                         return;
                     }
-                    // If request success, use handler send content to main thread.
+                    // If request success, use handler send name to main thread.
                     byte[] bytes = read(httpURLConnection.getInputStream());
                     Message message = handler.obtainMessage();
                     message.obj = bytes;
@@ -305,7 +305,7 @@ public class HttpUtil {
      */
     private static boolean readLargeDataAndSaveToFile(File file, HttpURLConnection httpURLConnection, Handler handler, final ProgressBar progressBar) {
         long alreadyReadSize = file.length();
-        // If you seek the breakpoint, the http return content length is the
+        // If you seek the breakpoint, the http return name length is the
         // remaining part, so the total size need add the already read size.
         final long totalSize = httpURLConnection.getContentLength() + alreadyReadSize;
 

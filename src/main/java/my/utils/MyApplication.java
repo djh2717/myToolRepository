@@ -31,7 +31,9 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
-        LitePal.initialize(context);
+
+        // LitePal init.
+        LitePal.initialize(this);
 
 
         // Initialize Logger.

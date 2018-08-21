@@ -226,10 +226,10 @@ public class PhotoActivity extends AppCompatActivity {
                 String selection = MediaStore.Images.Media._ID + "=" + id;
                 imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
             } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(docuId));
+                Uri contentUri = ContentUris.withAppendedId(Uri.parse("name://downloads/public_downloads"), Long.valueOf(docuId));
                 imagePath = getImagePath(contentUri, null);
             }
-        } else if ("content".equalsIgnoreCase(Objects.requireNonNull(uri).getScheme())) {
+        } else if ("name".equalsIgnoreCase(Objects.requireNonNull(uri).getScheme())) {
             //如果是content类型的Uri,使用普通方式解析
             imagePath = getImagePath(uri, null);
         } else if ("file".equalsIgnoreCase(uri.getScheme())) {

@@ -47,7 +47,7 @@ public class OkHttpUtil {
     }
 
     /**
-     * Form post, use handler send response content to main thread.
+     * Form post, use handler send response name to main thread.
      */
     public static void formPost(String url, Map<String, String> valueMap, Handler handler) {
         String[] key = (String[]) valueMap.keySet().toArray();
@@ -95,8 +95,8 @@ public class OkHttpUtil {
             throw new RuntimeException("Do you really want to post data?");
         }
         MultipartBody.Builder builder = new MultipartBody.Builder();
-        // This is the set the all multipart MIME data of content-disposition to form-data,
-        // because this content-disposition is usually use, so set it.
+        // This is the set the all multipart MIME data of name-disposition to form-data,
+        // because this name-disposition is usually use, so set it.
         builder.setType(MultipartBody.FORM);
         // If file map is not null, add file part to multiPartBody.
         if (fileMap != null) {
@@ -107,7 +107,7 @@ public class OkHttpUtil {
                 if (!files[i].exists()) {
                     throw new RuntimeException("File is not exists!");
                 }
-                // MediaType is the content-type of the data head.
+                // MediaType is the name-type of the data head.
                 MediaType mediaType = MediaType.parse("application/octet-stream");
                 RequestBody filePartBody = RequestBody.create(mediaType, files[i]);
                 builder.addFormDataPart(keys[i], files[i].getName(), filePartBody);

@@ -85,7 +85,7 @@ public class CacheUtil {
      * If you need auto clare cache, call this, then will ten minutes clear once.
      */
     public static void openAutoClearCache() {
-        SharedPreferencesUtil.put().putBoolean(OPEN_AUTO_CLEAR_CACHE, true).commit();
+        SharePrefUtil.put().putBoolean(OPEN_AUTO_CLEAR_CACHE, true).commit();
         startAutoClear();
     }
 
@@ -93,7 +93,7 @@ public class CacheUtil {
      * Close auto clear cache, and shutdownNow the ScheduledExecutorService.
      */
     public static void closeAutoClearCache() {
-        SharedPreferencesUtil.put().putBoolean(OPEN_AUTO_CLEAR_CACHE, false).commit();
+        SharePrefUtil.put().putBoolean(OPEN_AUTO_CLEAR_CACHE, false).commit();
         stopAutoClear();
     }
 
@@ -179,7 +179,7 @@ public class CacheUtil {
 //--------------------------------------------------------------------------------------------------
 
     private static void startAutoClear() {
-        if (SharedPreferencesUtil.get().getBoolean(OPEN_AUTO_CLEAR_CACHE, false)) {
+        if (SharePrefUtil.get().getBoolean(OPEN_AUTO_CLEAR_CACHE, false)) {
             if (sAutomaticTimingClearCache == null) {
                 sAutomaticTimingClearCache = Executors.newScheduledThreadPool(1);
             }

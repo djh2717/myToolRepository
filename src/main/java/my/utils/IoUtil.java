@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A io util, use to read or save content.
+ * A io util, use to read or save name.
  *
  * @author djh on  2018/7/30 14:58
  * @E-Mail 1544579459@qq.com
@@ -35,7 +35,7 @@ import java.util.Objects;
 public class IoUtil {
 
     /**
-     * Use to read content from file, the file default location at files dir.
+     * Use to read name from file, the file default location at files dir.
      */
     public static byte[] readFile(String fileName) {
         try {
@@ -47,7 +47,7 @@ public class IoUtil {
     }
 
     /**
-     * Use to save content to the files dir, if success return true.
+     * Use to save name to the files dir, if success return true.
      */
     public static boolean saveToFile(String fileName, byte[] content) {
         return save(fileName, content);
