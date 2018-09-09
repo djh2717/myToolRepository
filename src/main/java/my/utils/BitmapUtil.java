@@ -2,8 +2,10 @@ package my.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -102,6 +104,19 @@ public class BitmapUtil {
     }
 
     /**
+     * This method is use to transform the vector drawable to bitmap, the bitmap width
+     * and height is the vector drawable width and height.
+     */
+    public static Bitmap vectorDrawableToBitmap(VectorDrawable vectorDrawable) {
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight()
+                , Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+        vectorDrawable.draw(canvas);
+        return bitmap;
+    }
+
+    /**
      * Use to change bitmap to  bytes.
      */
     public static byte[] bitmapToBytes(Bitmap bitmap) {
@@ -120,7 +135,9 @@ public class BitmapUtil {
         return bitmap;
     }
 
-//--------------------------------------------------------------------------------------------------
+
+    // ------------------ Internal API ------------------
+
 
     /**
      * 此处的判断中,用且和或是有很大区别的,且的话只有当图片的宽高同时大于控件宽高的两倍才会进行压缩
@@ -133,8 +150,8 @@ public class BitmapUtil {
      */
     private static int getInSampleSize(BitmapFactory.Options options, int desireWidth, int desireHeight) {
         int inSampleSize = 1;
-        int halfWidth = options.outWidth / 2;
-        int halfHeight = options.outHeight / 2;
+        float halfWidth = options.outWidth * 1.0f / 2;
+        float halfHeight = options.outHeight * 1.0f / 2;
         if (halfWidth >= desireWidth && halfHeight >= desireHeight) {
             while ((halfWidth / inSampleSize) >= desireWidth && (halfHeight / inSampleSize) >= desireHeight) {
                 inSampleSize = inSampleSize * 2;

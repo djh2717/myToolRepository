@@ -1,7 +1,6 @@
 package my.utils;
 
 import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -11,6 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Cache;
+import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -31,25 +32,30 @@ import okhttp3.ResponseBody;
 public class OkHttpUtil {
     private static Map<String, Call> sCallMap;
     private static OkHttpClient sOkHttpClient;
+    private static Handler sHandler;
 
     static {
         sOkHttpClient = new OkHttpClient.Builder()
                 .readTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(10, TimeUnit.SECONDS)
                 .connectTimeout(10, TimeUnit.SECONDS)
+                .retryOnConnectionFailure(true)
+                .cache(new Cache(MyApplication.getContext().getCacheDir(), 1024 * 1024 * 30))
                 .build();
         // Use to store all call of request, when activity destroy, cancel all request.
         sCallMap = new HashMap<>();
+        // Use to listener call back to ui thread.
+        sHandler = new Handler();
     }
 
-    public static void get(String url, @NonNull Handler handler) {
-        getSmallData(url, handler);
+    public static void get(String url, @Nullable CacheControl cacheControl, @NonNull ResponseCallBack responseCallBack) {
+        getSmallData(url, cacheControl, responseCallBack);
     }
 
     /**
-     * Form post, use handler send response name to main thread.
+     * Form post, use handler send response data to main thread.
      */
-    public static void formPost(String url, Map<String, String> valueMap, Handler handler) {
+    public static void formPost(String url, Map<String, String> valueMap, ResponseCallBack responseCallBack) {
         String[] key = (String[]) valueMap.keySet().toArray();
         String[] values = (String[]) valueMap.values().toArray();
 
@@ -66,38 +72,24 @@ public class OkHttpUtil {
 
         Call call = sOkHttpClient.newCall(request);
         sCallMap.put(url, call);
-        smallDataResponseCall(call, handler);
+        smallDataResponseCall(call, responseCallBack);
     }
 
     /**
      * MultipartBody post, use to post file or values.
      */
-    public static void multipartPost(String url, Handler handler, @Nullable Map<String, File> fileMap, @Nullable Map<String, String> valueMap) {//                text/plain ：纯文本格式 .txt
-//                text/xml ： XML格式 .xml
-//                image/gif ：gif图片格式 .gif
-//                image/jpeg ：jpg图片格式 .jpg
-//                image/png：png图片格式 .png
-//                audio/mp3 : 音频mp3格式 .mp3
-//                audio/rn-mpeg :音频mpga格式 .mpga
-//                video/mpeg4 : 视频mp4格式 .mp4
-//                video/x-mpg : 视频mpa格式 .mpg
-//                video/x-mpeg :视频mpeg格式 .mpeg
-//                video/mpg : 视频mpg格式 .mpg
-//                以application开头的媒体格式类型：
-//                application/xhtml+xml ：XHTML格式
-//                application/xml ： XML数据格式
-//                application/atom+xml ：Atom XML聚合格式
-//                application/json ： JSON数据格式
-//                application/pdf ：pdf格式
-//                application/msword ： Word文档格式
-//                application/octet-stream ： 二进制流数据
+    public static void multipartPost(String url, @Nullable Map<String, File> fileMap,
+                                     @Nullable Map<String, String> valueMap, ResponseCallBack responseCallBack) {
+
         if (fileMap == null && valueMap == null) {
             throw new RuntimeException("Do you really want to post data?");
         }
+
         MultipartBody.Builder builder = new MultipartBody.Builder();
-        // This is the set the all multipart MIME data of name-disposition to form-data,
-        // because this name-disposition is usually use, so set it.
+        // This is the set the all multipart MIME data of content-disposition to form-data,
+        // because this content-disposition is usually use, so set it.
         builder.setType(MultipartBody.FORM);
+
         // If file map is not null, add file part to multiPartBody.
         if (fileMap != null) {
             String[] keys = fileMap.keySet().toArray(new String[0]);
@@ -107,8 +99,8 @@ public class OkHttpUtil {
                 if (!files[i].exists()) {
                     throw new RuntimeException("File is not exists!");
                 }
-                // MediaType is the name-type of the data head.
-                MediaType mediaType = MediaType.parse("application/octet-stream");
+                // MediaType is the content-type of the data head.
+                MediaType mediaType = MediaType.parse(Types.APPLICATION_OCTET_STREAM);
                 RequestBody filePartBody = RequestBody.create(mediaType, files[i]);
                 builder.addFormDataPart(keys[i], files[i].getName(), filePartBody);
                 // You also can use this to add a file part.
@@ -118,6 +110,7 @@ public class OkHttpUtil {
                 //        filename=\"wjd.mp4\""), fileBody)
             }
         }
+
         // If valueMap is not null, add it to multiPartBody.
         if (valueMap != null) {
             String[] keys = valueMap.keySet().toArray(new String[0]);
@@ -126,32 +119,54 @@ public class OkHttpUtil {
                 builder.addFormDataPart(keys[i], values[i]);
             }
         }
+
         MultipartBody multipartBody = builder.build();
         Request request = new Request.Builder()
                 .url(url)
                 .post(multipartBody)
                 .build();
+
         Call call = sOkHttpClient.newCall(request);
         sCallMap.put(url, call);
-        smallDataResponseCall(call, handler);
+        smallDataResponseCall(call, responseCallBack);
     }
 
     /**
      * Json post, use to post json data.
      */
-    public static void jsonPost(String url, String json, Handler handler) {
+    public static void jsonPost(String url, String json, ResponseCallBack responseCallBack) {
+
         // If you not specify the charset, default is UTF-8.
         MediaType mediaType = MediaType.parse("application/json; charset=UTF-8");
+
         // Create json request body.
         RequestBody requestBody = RequestBody.create(mediaType, json);
+
         // Create request.
         Request request = new Request.Builder()
                 .url(url)
                 .post(requestBody)
                 .build();
+
         Call call = sOkHttpClient.newCall(request);
         sCallMap.put(url, call);
-        smallDataResponseCall(call, handler);
+        smallDataResponseCall(call, responseCallBack);
+    }
+
+    /**
+     * This post use to post other custom requestBody.
+     */
+    public static void otherPost(String url, RequestBody requestBody, ResponseCallBack responseCallBack) {
+        // Create the request.
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        // Enqueue the call.
+        Call call = sOkHttpClient.newCall(request);
+        sCallMap.put(url, call);
+        smallDataResponseCall(call, responseCallBack);
     }
 
     /**
@@ -177,42 +192,58 @@ public class OkHttpUtil {
         }
     }
 
-//--------------------------------------------------------------------------------------------------
+    // ------------------ Internal API ------------------
 
-    private static void getSmallData(String url, final Handler handler) {
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
+    private static void getSmallData(String url, CacheControl cacheControl, final ResponseCallBack responseCallBack) {
+        Request.Builder builder = new Request.Builder();
+        if (cacheControl != null) {
+            builder.cacheControl(cacheControl);
+        }
+        builder.url(url);
+        Request request = builder.build();
 
         Call call = sOkHttpClient.newCall(request);
+
         sCallMap.put(url, call);
-        smallDataResponseCall(call, handler);
+        smallDataResponseCall(call, responseCallBack);
     }
 
     /**
      * Async execute call, when the response data is small,
      * use handler send to main thread.
      */
-    private static void smallDataResponseCall(Call call, final Handler handler) {
+    private static void smallDataResponseCall(Call call, final ResponseCallBack responseCallBack) {
         call.enqueue(new Callback() {
             @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+            public void onFailure(@NonNull final Call call, @NonNull final IOException e) {
                 sCallMap.remove(call.request().url().toString());
-                showToast(handler, "连接失败");
-                e.printStackTrace();
+                // Post the response to the UI thread.
+                sHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        responseCallBack.onFailure(call, e);
+                    }
+                });
             }
 
             @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+            public void onResponse(@NonNull final Call call, @NonNull final Response response) throws IOException {
                 if (response.isSuccessful()) {
                     ResponseBody responseBody = response.body();
                     if (responseBody != null) {
-                        Message message = handler.obtainMessage();
-                        message.obj = responseBody.bytes();
-                        handler.sendMessage(message);
+                        final byte[] responseContent = responseBody.bytes();
+                        // Send this response content to UI thread.
+                        sHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                responseCallBack.onResponse(responseContent);
+                            }
+                        });
+                    } else {
+                        showToast(sHandler, "数据获取失败" + response.code());
                     }
                 } else {
-                    showToast(handler, "请求失败" + response.code());
+                    showToast(sHandler, "请求失败" + response.code());
                 }
                 sCallMap.remove(call.request().url().toString());
             }
@@ -226,5 +257,26 @@ public class OkHttpUtil {
                 ToastUtil.showToast(content);
             }
         });
+    }
+
+    /**
+     * Use to response call back on UI thread.
+     */
+    public interface ResponseCallBack {
+        /**
+         * Failure call back.
+         *
+         * @param call the failure call.
+         * @param e    the exception.
+         */
+        void onFailure(@NonNull Call call, @NonNull IOException e);
+
+        /**
+         * Success call back, this guarantee the request must success when this is
+         * call.
+         *
+         * @param responseContent the response content.
+         */
+        void onResponse(@NonNull byte[] responseContent);
     }
 }

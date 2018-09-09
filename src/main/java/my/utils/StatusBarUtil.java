@@ -32,7 +32,7 @@ public class StatusBarUtil {
         setStatusBar(activity, true);
     }
 
-//--------------------------------------------------------------------------------------------------
+    // ------------------ Internal API ------------------
 
     private static void setStatusBar(Activity activity, boolean hide) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

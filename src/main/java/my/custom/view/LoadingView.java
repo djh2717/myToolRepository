@@ -17,6 +17,8 @@ import my.dagger2.component.DaggerLoadingViewComponent;
 import my.utils.PxUtil;
 
 /**
+ * A loading view, use to show loading.
+ *
  * @author djh on  2018/8/21 15:00
  * @E-Mail 1544579459@qq.com
  */

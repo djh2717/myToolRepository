@@ -62,7 +62,7 @@ public class ActivityUtil {
     /**
      * Overload method.
      */
-    public static void startActivity(Activity fromActivity, Class toActivity, int requestCode) {
+    public static void startActivityForResult(Activity fromActivity, Class toActivity, int requestCode) {
         //Direct start activity need result.
         startDirect(fromActivity, toActivity, true, false, requestCode);
     }
@@ -79,12 +79,34 @@ public class ActivityUtil {
     /**
      * Overload method.
      */
-    public static void startHermitActivity(Activity fromActivity, String intentAction, int requestCode) {
+    public static void startHermitActivityForResult(Activity fromActivity, String intentAction, int requestCode) {
         //Hermit start activity need result.
         startHermit(fromActivity, intentAction, true, false, requestCode);
     }
 
-//--------------------------------------------------------------------------------------------------
+    /**
+     * Set the toActivity transition animator.
+     * Use this before toActivity setContentView().
+     */
+    public static void setExplodeAnimator(Activity activity) {
+        activity.getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        activity.getWindow().setEnterTransition(new Explode());
+        activity.getWindow().setExitTransition(new Explode());
+    }
+
+    /**
+     * Set the toActivity transition animator.
+     * Use this before toActivity setContentView().
+     */
+    public static void setSlideAnimator(Activity activity) {
+        activity.getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        activity.getWindow().setEnterTransition(new Slide());
+        activity.getWindow().setExitTransition(new Slide());
+    }
+
+
+    // ------------------ Internal API ------------------
+
 
     private static void startDirect(Activity fromActivity, Class toActivity, boolean needResult, boolean customAnimator, int requestCode) {
         Intent intent = new Intent(fromActivity, toActivity);
@@ -135,25 +157,5 @@ public class ActivityUtil {
                 ToastUtil.showToast("应用市场不可用,启动失败");
             }
         }
-    }
-
-    /**
-     * Set the toActivity transition animator.
-     * Use this before toActivity setContentView().
-     */
-    public static void setExplodeAnimator(Activity activity) {
-        activity.getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-        activity.getWindow().setEnterTransition(new Explode());
-        activity.getWindow().setExitTransition(new Explode());
-    }
-
-    /**
-     * Set the toActivity transition animator.
-     * Use this before toActivity setContentView().
-     */
-    public static void setSlideAnimator(Activity activity) {
-        activity.getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-        activity.getWindow().setEnterTransition(new Slide());
-        activity.getWindow().setExitTransition(new Slide());
     }
 }

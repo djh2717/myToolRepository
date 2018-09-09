@@ -10,6 +10,8 @@ import android.graphics.Paint;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -33,6 +35,7 @@ public class ShapeImageView extends View {
      */
     private int mShapeType;
     private int mScaleType;
+    private int mDrawableId;
     private int mRoundRadius;
 
     /**
@@ -41,6 +44,9 @@ public class ShapeImageView extends View {
     private boolean mStroke;
     private int mStrokeColor;
     private float mStrokeWidth;
+
+    private int mMeasureWidth;
+    private int mMeasureHeight;
 
     /**
      * Bitmap is get from styleable or dynamic set, so do not use dagger2.
@@ -127,11 +133,8 @@ public class ShapeImageView extends View {
         // Get the round radius, default round radius is 10dp.
         mRoundRadius = typedArray.getDimensionPixelSize(R.styleable.ShapeImageView_round_radius, (int) PxUtil.dpToPx(10));
 
-        // Get the drawable.
-        int drawableId = typedArray.getResourceId(R.styleable.ShapeImageView_src, -1);
-        if (drawableId != -1) {
-            mSrcBitmap = BitmapUtil.drawableToBitmap(getResources().getDrawable(drawableId, null));
-        }
+        // Get the drawableId.
+        mDrawableId = typedArray.getResourceId(R.styleable.ShapeImageView_src, -1);
 
         // Get the scale type.
         mScaleType = typedArray.getInt(R.styleable.ShapeImageView_scaleType, -1);
@@ -154,9 +157,9 @@ public class ShapeImageView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int width = getMeasureSize(widthMeasureSpec, BORDER_WIDTH);
-        int height = getMeasureSize(heightMeasureSpec, BORDER_HEIGHT);
-        setMeasuredDimension(width, height);
+        mMeasureWidth = getMeasureSize(widthMeasureSpec, BORDER_WIDTH);
+        mMeasureHeight = getMeasureSize(heightMeasureSpec, BORDER_HEIGHT);
+        setMeasuredDimension(mMeasureWidth, mMeasureHeight);
     }
 
     /**
@@ -169,11 +172,23 @@ public class ShapeImageView extends View {
             case MeasureSpec.UNSPECIFIED:
                 return MeasureSpec.getSize(measureSpec);
             case MeasureSpec.AT_MOST:
-                if (mSrcBitmap != null) {
-                    if (border == BORDER_WIDTH) {
-                        return mSrcBitmap.getWidth() + getPaddingLeft() + getPaddingRight();
-                    } else if (border == BORDER_HEIGHT) {
-                        return mSrcBitmap.getHeight() + getPaddingTop() + getPaddingBottom();
+                if (mSrcBitmap != null || mDrawableId != -1) {
+                    switch (border) {
+                        case BORDER_WIDTH:
+                            if (mSrcBitmap != null) {
+                                return mSrcBitmap.getWidth() + getPaddingLeft() + getPaddingRight();
+                            } else {
+                                Drawable drawable = getResources().getDrawable(mDrawableId, null);
+                                return drawable.getIntrinsicWidth() + getPaddingLeft() + getPaddingRight();
+                            }
+                        case BORDER_HEIGHT:
+                            if (mSrcBitmap != null) {
+                                return mSrcBitmap.getHeight() + getPaddingTop() + getPaddingBottom();
+                            } else {
+                                Drawable drawable = getResources().getDrawable(mDrawableId, null);
+                                return drawable.getIntrinsicHeight() + getPaddingTop() + getPaddingBottom();
+                            }
+                        default:
                     }
                 }
                 break;
@@ -184,6 +199,16 @@ public class ShapeImageView extends View {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        // Get the bitmap if resourceId is not -1.
+        if (mDrawableId != -1) {
+            Drawable drawable = getResources().getDrawable(mDrawableId, null);
+            // Judgment the drawable whether is vector drawable.
+            if (drawable instanceof VectorDrawable) {
+                mSrcBitmap = BitmapUtil.vectorDrawableToBitmap((VectorDrawable) drawable);
+            } else {
+                mSrcBitmap = BitmapUtil.decodeResources(mDrawableId, mMeasureWidth, mMeasureHeight);
+            }
+        }
         // If bitmap is not null, set the scale type and other configs.
         if (mSrcBitmap != null) {
             // Set the scale type.
@@ -210,7 +235,7 @@ public class ShapeImageView extends View {
         switch (mShapeType) {
             case SHAPE_CIRCLE:
                 float radius = Math.min(mDstRectF.width() / 2 * 1.0f, mDstRectF.height() / 2 * 1.0f);
-                canvas.drawCircle(getMeasuredWidth() * 1.0f / 2, getMeasuredHeight() * 1.0f / 2, radius, mPaint);
+                canvas.drawCircle(mMeasureWidth * 1.0f / 2, mMeasureHeight * 1.0f / 2, radius, mPaint);
                 break;
             case SHAPE_ROUND:
                 canvas.drawRoundRect(mDstRectF, mRoundRadius, mRoundRadius, mPaint);
@@ -244,7 +269,7 @@ public class ShapeImageView extends View {
             switch (mShapeType) {
                 case SHAPE_CIRCLE:
                     float radius = Math.min(mDstRectF.width() / 2 * 1.0f, mDstRectF.height() / 2 * 1.0f);
-                    canvas.drawCircle(getMeasuredWidth() * 1.0f / 2, getMeasuredHeight() * 1.0f / 2, radius - mStrokeWidth / 2, mStrokePaint);
+                    canvas.drawCircle(mMeasureWidth * 1.0f / 2, mMeasureHeight * 1.0f / 2, radius - mStrokeWidth / 2, mStrokePaint);
                     break;
                 case SHAPE_ROUND:
                     canvas.drawRoundRect(mDstRectF, mRoundRadius, mRoundRadius, mStrokePaint);
@@ -257,9 +282,9 @@ public class ShapeImageView extends View {
     private void drawShapeBitmap(Canvas canvas, Bitmap shapeBitmap) {
         float border = Math.min(mDstRectF.width(), mDstRectF.height());
         // Set the shape rectF, it is a square, the border is min of dstRectF.
-        mShapeRectF.top = getMeasuredHeight() * 1.0f / 2 - border / 2;
+        mShapeRectF.top = mMeasureHeight * 1.0f / 2 - border / 2;
         mShapeRectF.bottom = mShapeRectF.top + border;
-        mShapeRectF.left = getMeasuredWidth() * 1.0f / 2 - border / 2;
+        mShapeRectF.left = mMeasureWidth * 1.0f / 2 - border / 2;
         mShapeRectF.right = mShapeRectF.left + border;
         // Draw shape bitmap.
         canvas.drawBitmap(shapeBitmap, null, mShapeRectF, mPaint);
@@ -290,8 +315,8 @@ public class ShapeImageView extends View {
     private void scaleFitXY() {
         mDstRectF.top = 0;
         mDstRectF.left = 0;
-        mDstRectF.right = getMeasuredWidth();
-        mDstRectF.bottom = getMeasuredHeight();
+        mDstRectF.right = mMeasureWidth;
+        mDstRectF.bottom = mMeasureHeight;
     }
 
     private void scaleFitCenter() {
@@ -302,19 +327,19 @@ public class ShapeImageView extends View {
         // if the component height is large than equal ratio scaled bitmap height,
         // so, the scale is ok, and the bitmap is not deform, otherwise let the bitmap
         // height is component height, equal ratio the width.
-        int scaledWidth = getMeasuredWidth();
+        int scaledWidth = mMeasureWidth;
         int scaledHeight = Math.round(scaledWidth / aspectRatio);
-        if (getMeasuredHeight() >= scaledHeight) {
+        if (mMeasureHeight >= scaledHeight) {
             mDstRectF.left = 0;
-            mDstRectF.right = getMeasuredWidth();
-            mDstRectF.top = (getMeasuredHeight() - scaledHeight) / 2;
+            mDstRectF.right = mMeasureWidth;
+            mDstRectF.top = (mMeasureHeight - scaledHeight) / 2;
             mDstRectF.bottom = mDstRectF.top + scaledHeight;
         } else {
-            scaledHeight = getMeasuredHeight();
+            scaledHeight = mMeasureHeight;
             scaledWidth = Math.round(scaledHeight * aspectRatio);
             mDstRectF.top = 0;
-            mDstRectF.bottom = getMeasuredHeight();
-            mDstRectF.left = (getMeasuredWidth() - scaledWidth) / 2;
+            mDstRectF.bottom = mMeasureHeight;
+            mDstRectF.left = (mMeasureWidth - scaledWidth) / 2;
             mDstRectF.right = mDstRectF.left + scaledWidth;
         }
     }
@@ -322,8 +347,8 @@ public class ShapeImageView extends View {
     private void scaleCenterCrop() {
         mDstRectF.top = 0;
         mDstRectF.left = 0;
-        mDstRectF.right = getMeasuredWidth();
-        mDstRectF.bottom = getMeasuredHeight();
+        mDstRectF.right = mMeasureWidth;
+        mDstRectF.bottom = mMeasureHeight;
         int bitmapWidth = mSrcBitmap.getWidth();
         int bitmapHeight = mSrcBitmap.getHeight();
         float aspectRatio = bitmapWidth * 1.0f / bitmapHeight * 1.0f;
@@ -331,16 +356,16 @@ public class ShapeImageView extends View {
         // scaled width is component width, then if the equal ratio height is
         // large than component height, the scale is ok, otherwise let the
         // scaled height is component height.
-        int scaledWidth = getMeasuredWidth();
+        int scaledWidth = mMeasureWidth;
         int scaledHeight = Math.round(scaledWidth / aspectRatio);
-        if (getMeasuredHeight() <= scaledHeight) {
+        if (mMeasureHeight <= scaledHeight) {
             float scaleFactor = bitmapHeight * 1.0f / scaledHeight * 1.0f;
             mSrcRect.left = 0;
             mSrcRect.right = bitmapWidth;
-            mSrcRect.top = (int) (((scaledHeight - getMeasuredHeight()) / 2) * scaleFactor);
+            mSrcRect.top = (int) (((scaledHeight - mMeasureHeight) / 2) * scaleFactor);
             mSrcRect.bottom = bitmapHeight - mSrcRect.top;
         } else {
-            scaledHeight = getMeasuredHeight();
+            scaledHeight = mMeasureHeight;
             scaledWidth = Math.round(scaledHeight * aspectRatio);
             float scaleFactor = bitmapWidth * 1.0f / scaledWidth * 1.0f;
             mSrcRect.top = 0;
@@ -356,22 +381,22 @@ public class ShapeImageView extends View {
         int bitmapHeight = mSrcBitmap.getHeight();
         if (bitmapWidth >= getMeasuredWidth()) {
             mDstRectF.left = 0;
-            mDstRectF.right = getMeasuredWidth();
+            mDstRectF.right = mMeasureWidth;
             mSrcRect.left = (bitmapWidth - getMeasuredWidth()) / 2;
-            mSrcRect.right = mSrcRect.left + getMeasuredWidth();
+            mSrcRect.right = mSrcRect.left + mMeasureWidth;
         } else {
-            mDstRectF.left = (getMeasuredWidth() - bitmapWidth) / 2;
+            mDstRectF.left = (mMeasureWidth - bitmapWidth) / 2;
             mDstRectF.right = mDstRectF.left + bitmapWidth;
             mSrcRect.left = 0;
             mSrcRect.right = bitmapWidth;
         }
-        if (bitmapHeight >= getMeasuredHeight()) {
+        if (bitmapHeight >= mMeasureHeight) {
             mDstRectF.top = 0;
-            mDstRectF.bottom = getMeasuredHeight();
-            mSrcRect.top = (bitmapHeight - getMeasuredHeight()) / 2;
-            mSrcRect.bottom = mSrcRect.top + getMeasuredHeight();
+            mDstRectF.bottom = mMeasureHeight;
+            mSrcRect.top = (bitmapHeight - mMeasureHeight) / 2;
+            mSrcRect.bottom = mSrcRect.top + mMeasureHeight;
         } else {
-            mDstRectF.top = (getMeasuredHeight() - bitmapHeight) / 2;
+            mDstRectF.top = (mMeasureHeight - bitmapHeight) / 2;
             mDstRectF.bottom = mDstRectF.top + bitmapHeight;
             mSrcRect.top = 0;
             mSrcRect.bottom = bitmapHeight;
@@ -383,6 +408,9 @@ public class ShapeImageView extends View {
      */
     public void setImageBitmap(Bitmap bitmap) {
         mSrcBitmap = bitmap;
+        // Set tht drawableId as -1, use to avoid the draw the drawable that is set
+        // at the xml file.
+        mDrawableId = -1;
         if (!isInLayout()) {
             requestLayout();
         }

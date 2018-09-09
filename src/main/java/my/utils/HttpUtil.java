@@ -127,7 +127,9 @@ public class HttpUtil {
         }
     }
 
-//--------------------------------------------------------------------------------------------------
+
+    // ------------------ Internal API ------------------
+
 
     /**
      * Initialize the thread pool, reference on async task.
@@ -289,12 +291,8 @@ public class HttpUtil {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                bufferedInputStream.close();
-                byteArrayOutputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            CloseableUtil.close(bufferedInputStream);
+            CloseableUtil.close(byteArrayOutputStream);
         }
         return null;
     }
@@ -340,20 +338,8 @@ public class HttpUtil {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (bufferedOutputStream != null) {
-                try {
-                    bufferedOutputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (bufferedInputStream != null) {
-                try {
-                    bufferedInputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            CloseableUtil.close(bufferedOutputStream);
+            CloseableUtil.close(bufferedInputStream);
         }
         return false;
     }

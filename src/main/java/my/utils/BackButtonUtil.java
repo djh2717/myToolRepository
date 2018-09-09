@@ -9,7 +9,7 @@ import android.widget.Button;
  *
  * @author 15445
  */
-public class BackButton {
+public class BackButtonUtil {
 
     public static void back(Button button, final Activity activity) {
         button.setOnClickListener(new View.OnClickListener() {

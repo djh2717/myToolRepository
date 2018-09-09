@@ -19,7 +19,7 @@
             app:collapsedTitleTextAppearance="@style/collapsedTitleTextAppearance"
             app:contentScrim="?attr/colorPrimaryDark"
             app:expandedTitleTextAppearance="@style/expendTitleTextAppearance"
-            app:layout_scrollFlags="scroll|scroll|exitUntilCollapsed">
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView
                 android:layout_width="match_parent"

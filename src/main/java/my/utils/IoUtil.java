@@ -1,7 +1,5 @@
 package my.utils;
 
-import android.annotation.SuppressLint;
-import android.os.Build;
 import android.os.Environment;
 
 import java.io.BufferedInputStream;
@@ -16,18 +14,13 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.channels.FileChannel;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * A io util, use to read or save name.
+ * A io util, use to read or save content.
  *
  * @author djh on  2018/7/30 14:58
  * @E-Mail 1544579459@qq.com
@@ -35,7 +28,7 @@ import java.util.Objects;
 public class IoUtil {
 
     /**
-     * Use to read name from file, the file default location at files dir.
+     * Use to read content from file, the file default location at files dir.
      */
     public static byte[] readFile(String fileName) {
         try {
@@ -47,7 +40,7 @@ public class IoUtil {
     }
 
     /**
-     * Use to save name to the files dir, if success return true.
+     * Use to save content to the files dir, if success return true.
      */
     public static boolean saveToFile(String fileName, byte[] content) {
         return save(fileName, content);
@@ -110,33 +103,35 @@ public class IoUtil {
         List<File> fileList;
         // If the api is large than 26, use nio walkFileTree to search file,
         // otherwise use the custom recursion.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Path path = file.toPath();
-            try {
-                fileList = walkFileTree(path, fileName);
-                // If not search any file, return null.
-                if (fileList.size() == 0) {
-                    return null;
-                } else {
-                    return fileList;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            fileList = new ArrayList<>();
-            // Recursive search.
-            recursiveSearch(fileList, file, fileName);
-            // If no file is found, return null.
-            if (fileList.size() == 0) {
-                return null;
-            }
-            return fileList;
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            Path path = file.toPath();
+//            try {
+//                fileList = walkFileTree(path, fileName);
+//                // If not search any file, return null.
+//                if (fileList.size() == 0) {
+//                    return null;
+//                } else {
+//                    return fileList;
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+        fileList = new ArrayList<>();
+        // Recursive search.
+        recursiveSearch(fileList, file, fileName);
+        // If no file is found, return null.
+        if (fileList.size() == 0) {
+            return null;
         }
-        return null;
+        return fileList;
+//        }
+//        return null;
     }
 
-//--------------------------------------------------------------------------------------------------
+
+    // ------------------ Internal API ------------------
+
 
     private static byte[] read(String fileName) throws FileNotFoundException {
 
@@ -159,13 +154,9 @@ public class IoUtil {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                inputStream.close();
-                bufferedInputStream.close();
-                byteArrayOutputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            CloseableUtil.close(inputStream);
+            CloseableUtil.close(bufferedInputStream);
+            CloseableUtil.close(byteArrayOutputStream);
         }
         return null;
     }
@@ -184,13 +175,7 @@ public class IoUtil {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (bufferedOutputStream != null) {
-                    bufferedOutputStream.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            CloseableUtil.close(bufferedOutputStream);
         }
         return false;
     }
@@ -244,12 +229,8 @@ public class IoUtil {
             objectOutputStream.writeObject(null);
             objectOutputStream.flush();
         } finally {
-            if (objectOutputStream != null) {
-                objectOutputStream.close();
-            }
-            if (objectInputStream != null) {
-                objectInputStream.close();
-            }
+            CloseableUtil.close(objectOutputStream);
+            CloseableUtil.close(objectInputStream);
         }
     }
 
@@ -269,9 +250,7 @@ public class IoUtil {
             }
             return objectList;
         } finally {
-            if (objectInputStream != null) {
-                objectInputStream.close();
-            }
+            CloseableUtil.close(objectInputStream);
         }
     }
 
@@ -286,47 +265,36 @@ public class IoUtil {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (toChannel != null) {
-                try {
-                    toChannel.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (fromChannel != null) {
-                try {
-                    fromChannel.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            CloseableUtil.close(toChannel);
+            CloseableUtil.close(fromChannel);
         }
     }
 
-    @SuppressLint("NewApi")
-    private static List<File> walkFileTree(Path rootPath, final String fileName) throws IOException {
-        // Use to store the search result.
-        final List<File> fileList = new ArrayList<>();
-
-        // This is use to visitor the file tree.
-        Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                // If the file name is contains the aim fileName, add to list.
-                if (file.getFileName().toString().contains(fileName)) {
-                    fileList.add(file.toFile());
-                }
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                // If the file is visit failed, do not deal with.
-                return FileVisitResult.CONTINUE;
-            }
-        });
-        return fileList;
-    }
+//    At Android 6.0, do not have the SimpleFileVisitor file.
+//    @TargetApi(Build.VERSION_CODES.O)
+//    private static List<File> walkFileTree(Path rootPath, final String fileName) throws IOException {
+//        // Use to store the search result.
+//        final List<File> fileList = new ArrayList<>();
+//
+//        // This is use to visitor the file tree.
+//        Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
+//            @Override
+//            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+//                // If the file name is contains the aim fileName, add to list.
+//                if (file.getFileName().toString().contains(fileName)) {
+//                    fileList.add(file.toFile());
+//                }
+//                return FileVisitResult.CONTINUE;
+//            }
+//
+//            @Override
+//            public FileVisitResult visitFileFailed(Path file, IOException exc) {
+//                // If the file is visit failed, do not deal with.
+//                return FileVisitResult.CONTINUE;
+//            }
+//        });
+//        return fileList;
+//    }
 
     /**
      * Recursive search the file.
