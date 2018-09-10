@@ -38,7 +38,7 @@ public class MyApplication extends Application implements HasActivityInjector {
     /**
      * Plugin for memory leaks.
      */
-    RefWatcher refWatcher;
+    private RefWatcher refWatcher;
 
     @Override
     public void onCreate() {

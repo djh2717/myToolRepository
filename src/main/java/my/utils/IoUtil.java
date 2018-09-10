@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import my.design.mode.CloseableUtil;
+
 /**
  * A io util, use to read or save content.
  *

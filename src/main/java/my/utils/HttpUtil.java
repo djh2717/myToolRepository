@@ -25,6 +25,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import my.design.mode.CloseableUtil;
+
 /**
  * A http util, packaged thread pool and use handler mutual with main thread, this can
  * get small data and large data, small data will direct put it to memory and return,

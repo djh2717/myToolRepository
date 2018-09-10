@@ -10,13 +10,16 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 
-import advanced.nioDemo.R;import my.utils.ActivityUtil;
+import advanced.nioDemo.R;
+import my.utils.ActivityUtil;
 import my.utils.NetWorkUtil;
 import my.utils.PxUtil;
 
@@ -118,7 +121,7 @@ public class NetWorkStateListenerActivity extends AppCompatActivity {
      * This action is use to static register.
      * <action android:name="android.NET.conn.CONNECTIVITY_CHANGE" />
      */
-    public class NetWorkStateBroadcast extends BroadcastReceiver {
+    private class NetWorkStateBroadcast extends BroadcastReceiver {
         private View mHintView;
 
         /**
@@ -165,13 +168,8 @@ public class NetWorkStateListenerActivity extends AppCompatActivity {
 
         private void setListener(final WindowManager windowManager) {
             // When use click the hint view, jump to internet setting interface.
-            mHintView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ActivityUtil.startHermitActivity(NetWorkStateListenerActivity.this,
-                            Settings.ACTION_AIRPLANE_MODE_SETTINGS);
-                }
-            });
+            mHintView.setOnClickListener(v -> ActivityUtil.startHermitActivity(NetWorkStateListenerActivity.this,
+                    Settings.ACTION_AIRPLANE_MODE_SETTINGS));
 
             // This listener is use to anchor the hint view to aim view top, and
             // then move down the aim view a hint view height.
@@ -230,7 +228,7 @@ public class NetWorkStateListenerActivity extends AppCompatActivity {
             layoutParams.format = PixelFormat.TRANSPARENT;
             layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
             layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-            layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
+            layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
             return layoutParams;
         }
     }
