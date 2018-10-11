@@ -13,13 +13,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import my.code.repository.design.mode.CloseableUtil;
+import my.code.repository.design.principle.CloseableUtil;
 
 
 /**
@@ -33,13 +34,8 @@ public class IoUtil {
     /**
      * Use to read content from file, the file default location at files dir.
      */
-    public static byte[] readFile(String fileName) {
-        try {
-            return read(fileName);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public static byte[] readFile(String fileName) throws FileNotFoundException {
+        return read(fileName);
     }
 
     /**
@@ -53,24 +49,18 @@ public class IoUtil {
      * Save objects to file, if is append, will auto remove the null object
      * at then end of file.
      */
-    public static void saveObjects(String fileName, Collection<Object> objects, boolean append) {
-        try {
-            saveObjectToFile(fileName, objects, append);
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+    public static <T extends Serializable> void saveObjects(String fileName, Collection<T> objects, boolean append) throws IOException, ClassNotFoundException {
+        saveObjectToFile(fileName, objects, append);
     }
 
     /**
-     * Read objects from file, may return null if a exception is occur.
+     * Read objects from file.
+     *
+     * @throws ClassCastException if the object is not
+     *                            null and is not assignable to the type T.
      */
-    public static List<Object> readObjects(String fileName) {
-        try {
-            return readObjectFromFile(fileName);
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public static <T> List<T> readObjects(String fileName, Class<T> aimClass) throws IOException, ClassNotFoundException {
+        return readObjectFromFile(fileName, aimClass);
     }
 
     /**
@@ -88,7 +78,7 @@ public class IoUtil {
     /**
      * Use nio copy file is faster, this may replace the toFile if already exists.
      */
-    public static void copyFile(File fromFile, File toFile) {
+    public static void copyFile(File fromFile, File toFile) throws IOException {
         if (!fromFile.exists()) {
             throw new RuntimeException("FromFile is not exists!");
         }
@@ -133,7 +123,7 @@ public class IoUtil {
     }
 
 
-    // ------------------ Internal API ------------------
+    // ----------------------- Internal API -----------------------
 
 
     private static byte[] read(String fileName) throws FileNotFoundException {
@@ -186,7 +176,7 @@ public class IoUtil {
     /**
      * Save objects to file, support for appending.
      */
-    private static void saveObjectToFile(String fileName, Collection<Object> objects, boolean append) throws IOException, ClassNotFoundException {
+    private static <T extends Serializable> void saveObjectToFile(String fileName, Collection<T> objects, boolean append) throws IOException, ClassNotFoundException {
         File file = new File(MyApplication.getContext().getFilesDir(), fileName);
         if (!file.exists()) {
             file.createNewFile();
@@ -237,7 +227,7 @@ public class IoUtil {
         }
     }
 
-    private static List<Object> readObjectFromFile(String fileName) throws IOException, ClassNotFoundException {
+    private static <T> List<T> readObjectFromFile(String fileName, Class<T> aimClass) throws IOException, ClassNotFoundException {
         File file = new File(MyApplication.getContext().getFilesDir(), fileName);
         if (!file.exists()) {
             throw new RuntimeException("File is not exists!");
@@ -245,11 +235,11 @@ public class IoUtil {
         ObjectInputStream objectInputStream = null;
         try {
             // Read object from file and put it to list, then return.
-            List<Object> objectList = new ArrayList<>();
+            List<T> objectList = new ArrayList<>();
             objectInputStream = new ObjectInputStream(new FileInputStream(file));
             Object object;
             while ((object = objectInputStream.readObject()) != null) {
-                objectList.add(object);
+                objectList.add(aimClass.cast(object));
             }
             return objectList;
         } finally {
@@ -257,7 +247,7 @@ public class IoUtil {
         }
     }
 
-    private static void copy(File fromFile, File toFile) {
+    private static void copy(File fromFile, File toFile) throws IOException {
         FileChannel fromChannel = null;
         FileChannel toChannel = null;
         try {
@@ -265,12 +255,11 @@ public class IoUtil {
             toChannel = new FileOutputStream(toFile).getChannel();
             // Use channel to copy file.
             fromChannel.transferTo(0, fromChannel.size(), toChannel);
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             CloseableUtil.close(toChannel);
             CloseableUtil.close(fromChannel);
         }
+
     }
 
 //    At Android 6.0, do not have the SimpleFileVisitor file.

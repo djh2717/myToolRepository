@@ -39,7 +39,7 @@ public class DialogUtil {
         progressDialog.setCancelable(cancelable);
         progressDialog.setMessage("正在加载,请稍后...");
         progressDialog.setCanceledOnTouchOutside(false);
-        //If user cancel the progressDialog, should stop the scheduled thread.
+        //If djh cancel the progressDialog, should stop the scheduled thread.
         progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {

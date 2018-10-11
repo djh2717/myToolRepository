@@ -1,6 +1,6 @@
 package my.code.repository.utils;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.io.File;
 

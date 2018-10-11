@@ -130,6 +130,8 @@ public class ActivityUtil {
         Intent intent = new Intent(intentAction);
         PackageManager packageManager = fromActivity.getPackageManager();
         ComponentName componentName = intent.resolveActivity(packageManager);
+        // Also can use this to judge weather have the hermit activity.
+        // packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
 
         //Judge the intent can deal with some activity, if can't then open google store.
         if (componentName != null) {

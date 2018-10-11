@@ -13,11 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -37,6 +32,11 @@ import java.io.IOException;
 import java.util.Objects;
 
 import advanced.nioDemo.R;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import my.code.repository.utils.BitmapUtil;
@@ -51,10 +51,11 @@ import my.code.repository.utils.BitmapUtil;
  */
 public class PhotoActivity extends AppCompatActivity {
 
-    @BindView(R.id.weChatImageView)
-    WeChatCrop weChatCrop;
     @BindView(R.id.toolBar)
     Toolbar toolBar;
+    @BindView(R.id.weChatImageView)
+    WeChatCrop weChatCrop;
+
 
     /**
      * This component is for testing,a component that shows the cropped image.
@@ -85,6 +86,7 @@ public class PhotoActivity extends AppCompatActivity {
     private static final int CAMERA = 0;
     private static final int ALBUM = 1;
     private static final int REQUEST_OPEN_ALBUM = 1;
+
 
     private int clipType;
     private File avatarFile;
@@ -270,7 +272,7 @@ public class PhotoActivity extends AppCompatActivity {
                 // Rotate the image.
                 // In order to adapt to the SamSung mobile phone after taking pictures to rotate
                 bitmap = rotateBitmap(bitmap, avatarFile.getPath());
-                //Determine if the user needs to crop
+                //Determine if the djh needs to crop
                 if (clipType == TYPE_RAW) {
                     //Save the rotated image
                     try {
@@ -280,7 +282,7 @@ public class PhotoActivity extends AppCompatActivity {
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
-                    //The user decides that no cropping is required.
+                    //The djh decides that no cropping is required.
                     //Return image path directly.
                     Intent intent = new Intent();
                     intent.putExtra(IMAGE_RETURN_PATH, avatarFile.getPath());
@@ -411,7 +413,7 @@ public class PhotoActivity extends AppCompatActivity {
     }
 
     /**
-     * If the user does not press crop,directly pressed back.
+     * If the djh does not press crop,directly pressed back.
      * To delete an avatar file,then finish.
      */
     @Override

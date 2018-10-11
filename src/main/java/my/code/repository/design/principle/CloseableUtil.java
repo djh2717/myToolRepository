@@ -1,4 +1,4 @@
-package my.code.repository.design.mode;
+package my.code.repository.design.principle;
 
 import java.io.Closeable;
 import java.io.IOException;

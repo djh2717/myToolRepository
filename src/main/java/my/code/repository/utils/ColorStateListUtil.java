@@ -4,7 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.os.Build;
-import android.support.annotation.ColorRes;
+
+import androidx.annotation.ColorRes;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -21,6 +22,7 @@ public class ColorStateListUtil {
     /**
      * Use to get the color state list from xml, if an exception is occur will return null.
      */
+    @SuppressWarnings("deprecation")
     @SuppressLint("ResourceType")
     public static ColorStateList get(@ColorRes int resourceId) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

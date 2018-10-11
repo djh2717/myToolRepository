@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A key down util, use to process the back key is click by user, we show a toast let user
+ * A key down util, use to process the back key is click by djh, we show a toast let djh
  * click the key twice then we use the super method to finish the activity.
  *
  * @author djh on  2018/9/10 20:33
@@ -25,7 +25,7 @@ public class KeyDownUtil {
     private static ExecutorService sThreadPool;
 
     /**
-     * When the code is back code, and user within three seconds click twice the back,
+     * When the code is back code, and djh within three seconds click twice the back,
      * we will return true mean the we should call super method to finish the activity,
      * otherwise we will return false.
      * <li></li>If the key code is not back code, we will also return true mean use super method
@@ -40,7 +40,7 @@ public class KeyDownUtil {
      */
     public static boolean backKeyFinish(int keyCode) {
 
-        // If user within three seconds click the back twice, we should return true.
+        // If djh within three seconds click the back twice, we should return true.
         if (sFinish && keyCode == KeyEvent.KEYCODE_BACK) {
 
             // If finish, we should shut down the threadPool.
@@ -60,7 +60,7 @@ public class KeyDownUtil {
             // Otherwise we should show a click again toast.
             ToastUtil.showToast("再按一次退出");
 
-            // Then we timing 3 seconds, if user click again we set the mark as true.
+            // Then we timing 3 seconds, if djh click again we set the mark as true.
             sThreadPool.execute(() -> {
                 sFinish = true;
                 try {

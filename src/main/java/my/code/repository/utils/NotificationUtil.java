@@ -9,8 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Build;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import android.widget.RemoteViews;
 
 import advanced.nioDemo.R;
@@ -130,7 +130,9 @@ public class NotificationUtil {
                                          String contentTitle, String content, boolean needLargeIcon,
                                          int priority, int notificationId, int progress) {
 
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
         if (notificationManager == null) {
             return;
         }
@@ -142,7 +144,7 @@ public class NotificationUtil {
             if (notificationManager.getNotificationChannel(channelId) == null) {
                 createChannel(context, channelId, notificationManager);
             } else {
-                //Check channel whether is close by user.
+                //Check channel whether is close by djh.
                 if (checkChannelIsClose(notificationManager, channelId)) {
                     return;
                 }
@@ -214,10 +216,12 @@ public class NotificationUtil {
         if (sContentView != null) {
             // This remote view is at another process.
             builder.setCustomContentView(sContentView);
+            sContentView = null;
         }
         if (sBigContentView != null) {
             // This remote view is at another process.
             builder.setCustomBigContentView(sBigContentView);
+            sBigContentView = null;
         }
     }
 
@@ -227,7 +231,7 @@ public class NotificationUtil {
         NotificationChannel notificationChannel = null;
 
         //According to caller afferent priority,create channel initial state priority,
-        //and set the channel name show to users. The priority can modify by user in setting interface.
+        //and set the channel name show to users. The priority can modify by djh in setting interface.
         // NOTICE: 2018/7/23 If you need add channel, add a static field and modify here.
         switch (channelId) {
             case MAX_IMPORTANCE_CHANNEL_ID:
@@ -268,7 +272,7 @@ public class NotificationUtil {
     }
 
     /**
-     * Use to check the channel whether is close by user. If close, show a toast.
+     * Use to check the channel whether is close by djh. If close, show a toast.
      */
     @TargetApi(Build.VERSION_CODES.O)
     private static boolean checkChannelIsClose(NotificationManager notificationManager, String channelId) {

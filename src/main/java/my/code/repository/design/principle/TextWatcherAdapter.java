@@ -1,4 +1,4 @@
-package my.design.mode;
+package my.code.repository.design.principle;
 
 import android.text.Editable;
 import android.text.TextWatcher;

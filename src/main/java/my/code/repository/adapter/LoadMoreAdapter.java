@@ -1,8 +1,8 @@
 package my.code.repository.adapter;
 
-import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -149,16 +149,13 @@ public class LoadMoreAdapter<T> extends RecyclerView.Adapter<LoadMoreAdapter.Loa
             // Show the failure text.
             mLoadMoreViewHolder.mFailureText.setVisibility(View.VISIBLE);
             //Set up monitoring,click retry to load.
-            mLoadMoreViewHolder.mFailureText.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mLoadMoreListener != null) {
-                        //Start load.
-                        mLoadMoreListener.startLoad();
-                        mLoadMoreViewHolder.mFailureText.setVisibility(View.GONE);
-                        //Show loading status.
-                        mLoadMoreViewHolder.mLoadingView.setVisibility(View.VISIBLE);
-                    }
+            mLoadMoreViewHolder.mFailureText.setOnClickListener(v -> {
+                if (mLoadMoreListener != null) {
+                    //Start load.
+                    mLoadMoreListener.startLoad();
+                    mLoadMoreViewHolder.mFailureText.setVisibility(View.GONE);
+                    //Show loading status.
+                    mLoadMoreViewHolder.mLoadingView.setVisibility(View.VISIBLE);
                 }
             });
         }

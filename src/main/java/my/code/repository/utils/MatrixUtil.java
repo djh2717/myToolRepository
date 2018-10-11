@@ -5,7 +5,7 @@ import android.animation.ValueAnimator;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.support.v7.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatImageView;
 import android.widget.ImageView;
 
 import com.orhanobut.logger.Logger;

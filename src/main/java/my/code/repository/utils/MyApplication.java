@@ -4,7 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.FormatStrategy;
@@ -22,7 +22,6 @@ import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
 import event.bus.MyEventBusIndex;
-import my.code.repository.dagger2.android.DaggerApplicationComponent;
 
 /**
  * @author 15445
@@ -44,7 +43,7 @@ public class MyApplication extends Application implements HasActivityInjector {
     public void onCreate() {
         super.onCreate();
         // Init the dagger android.
-        DaggerApplicationComponent.create().inject(this);
+//        DaggerApplicationComponent.create().inject(this);
 
         context = getApplicationContext();
 
@@ -57,8 +56,11 @@ public class MyApplication extends Application implements HasActivityInjector {
         // Initialize LeakCanary.
         refWatcher = installRefWatcher();
 
-        // EventBus index.
+        // EventBus index. May need modify the argument at the gradle
         EventBus.builder().addIndex(new MyEventBusIndex()).installDefaultEventBus();
+
+        // Custom crash handler init.
+        CrashHandler.INSTANCE.install(this);
     }
 
     public static Context getContext() {

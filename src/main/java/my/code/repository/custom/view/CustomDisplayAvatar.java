@@ -9,7 +9,7 @@ import android.content.Context;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.support.v7.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
@@ -76,13 +76,13 @@ public class CustomDisplayAvatar extends AppCompatImageView
         //Record initial scaling
         initializeScaleX = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_X, matrix);
         initializeScaleY = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_Y, matrix);
-        //Record initial matrix values
+        //Record initial matrix values.
         matrix.getValues(initializeMatrixValues);
         setImageMatrix(matrix);
     }
 
     /**
-     * 如果是没有放大图片,只进行水平平移
+     * 如果是没有放大图片,只进行水平平移.
      * 放大后可以随意移动
      */
     @SuppressLint("ClickableViewAccessibility")
@@ -290,88 +290,46 @@ public class CustomDisplayAvatar extends AppCompatImageView
     }
 
     private void valueAnimatorYListener(final float[] lastY, ValueAnimator valueAnimatorY) {
-        valueAnimatorY.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float currentY = (float) animation.getAnimatedValue();
-                float offSetY = currentY - lastY[0];
-                matrix.postTranslate(0f, offSetY);
-                setImageMatrix(matrix);
-                lastY[0] = currentY;
-            }
+        valueAnimatorY.addUpdateListener(animation -> {
+            float currentY = (float) animation.getAnimatedValue();
+            float offSetY = currentY - lastY[0];
+            matrix.postTranslate(0f, offSetY);
+            setImageMatrix(matrix);
+            lastY[0] = currentY;
         });
     }
 
     private void valueAnimatorXListener(final float[] lastX, ValueAnimator valueAnimatorX) {
-        valueAnimatorX.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float currentX = (float) animation.getAnimatedValue();
-                float offSetX = currentX - lastX[0];
-                matrix.postTranslate(offSetX, 0f);
-                setImageMatrix(matrix);
-                lastX[0] = currentX;
-            }
+        valueAnimatorX.addUpdateListener(animation -> {
+            float currentX = (float) animation.getAnimatedValue();
+            float offSetX = currentX - lastX[0];
+            matrix.postTranslate(offSetX, 0f);
+            setImageMatrix(matrix);
+            lastX[0] = currentX;
         });
     }
 
-    @Override
-    public boolean onScale(ScaleGestureDetector detector) {
-        float scaleFactor = detector.getScaleFactor();
-        float currentScaleX = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_X, matrix);
-        float currentScaleY = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_Y, matrix);
-        //最大最小值判断,最小缩小到比初始缩放值一半,最大放大到初始缩放值5倍
-        if ((initializeScaleX / currentScaleX < 2 && initializeScaleY / currentScaleY < 2 && scaleFactor < 1)
-                || (scaleFactor >= 1 && currentScaleY / initializeScaleY < 5 && currentScaleX / initializeScaleX < 5)) {
-            //直接用currentScale乘以当前矩阵,因为当前矩阵的XY可能是因为图片太大已经缩放过了的矩阵
-            if (scaleFactor < 1) {
-                //缩小以控件中心为缩放中心
-                matrix.postScale(scaleFactor, scaleFactor, width / 2, height / 2);
-            } else {
-                //放大以触控点为放大中心
-                matrix.postScale(scaleFactor, scaleFactor, detector.getFocusX(), detector.getFocusY());
-            }
-            setImageMatrix(matrix);
-        }
-        //onScale返回true表示总是对此次缩放事件进行消费,不然会出现越放大,放大速度越快
-        return true;
-    }
-
-    @Override
-    public boolean onScaleBegin(ScaleGestureDetector detector) {
-        return true;
-    }
-
-    /**
-     * 在结束缩放时,如果是缩小了,就采用属性动画把当前矩阵变化到初始状态的矩阵,
-     * 注意是直接把一个矩阵变化到另外一个矩阵,不用矩阵的乘法运算,
-     * 直接使用ObjectAnimator更改矩阵元素的值实现变化.
-     */
-    @Override
-    public void onScaleEnd(ScaleGestureDetector detector) {
-        float currentScaleX = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_X, matrix);
-        //如果缩小了,在缩放结束时恢复到初始缩放状态
-        if (currentScaleX < initializeScaleX) {
-            float[] valuesFrom = new float[9];
-            matrix.getValues(valuesFrom);
-            ValueAnimator valueAnimator = MatrixUtil.matrixToMatrix(new MatrixUtil.MatrixEvaluator(),
-                    valuesFrom, initializeMatrixValues, 300);
-            valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    MatrixUtil.MatrixValues matrixValues = (MatrixUtil.MatrixValues) animation.getAnimatedValue();
-                    matrix.setValues(matrixValues.getValues());
-                    setImageMatrix(matrix);
-                }
-            });
-            valueAnimator.start();
+    private void startAnimator(AnimatorSet animatorSet, ValueAnimator valueAnimatorX, ValueAnimator valueAnimatorY) {
+        //开始动画
+        animatorSet.setDuration(300);
+        if (valueAnimatorY == null) {
+            //animatorSet的play方法传入null不会报错,只是会返回null,
+            animatorSet.play(valueAnimatorX);
+            animatorSet.start();
+        } else if (valueAnimatorX == null) {
+            animatorSet.play(valueAnimatorY);
+            animatorSet.start();
+        } else {
+            //playTogether传入null会报错
+            animatorSet.playTogether(valueAnimatorX, valueAnimatorY);
+            animatorSet.start();
         }
     }
 
     /**
      * 手势监听类,实现双击放大和惯性滑动,用valueAnimator.ofObject来实现
      */
-    class MyGestureListener extends SimpleOnGestureListener {
+    private class MyGestureListener extends SimpleOnGestureListener {
         private float[] fromValues;
         private float[] targetValues;
 
@@ -397,13 +355,10 @@ public class CustomDisplayAvatar extends AppCompatImageView
                 //属性动画,实现从矩阵变换到矩阵
                 ValueAnimator valueAnimator = MatrixUtil.matrixToMatrix(new MatrixUtil.MatrixEvaluator(),
                         fromValues, targetValues, 200);
-                valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator animation) {
-                        MatrixUtil.MatrixValues currentValues = (MatrixUtil.MatrixValues) animation.getAnimatedValue();
-                        matrix.setValues(currentValues.getValues());
-                        setImageMatrix(matrix);
-                    }
+                valueAnimator.addUpdateListener(animation -> {
+                    MatrixUtil.MatrixValues currentValues = (MatrixUtil.MatrixValues) animation.getAnimatedValue();
+                    matrix.setValues(currentValues.getValues());
+                    setImageMatrix(matrix);
                 });
                 //动画结束时,手动调用Up,使图片根据黑边情况自动居中
                 valueAnimator.addListener(new AnimatorListenerAdapter() {
@@ -417,13 +372,10 @@ public class CustomDisplayAvatar extends AppCompatImageView
             } else {
                 //还原到初始矩阵,逻辑和放大一样,只需将valuesFrom和targetValues互换
                 ValueAnimator valueAnimator = MatrixUtil.matrixToMatrix(new MatrixUtil.MatrixEvaluator(), fromValues, initializeMatrixValues, 200);
-                valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator animation) {
-                        MatrixUtil.MatrixValues currentValues = (MatrixUtil.MatrixValues) animation.getAnimatedValue();
-                        matrix.setValues(currentValues.getValues());
-                        setImageMatrix(matrix);
-                    }
+                valueAnimator.addUpdateListener(animation -> {
+                    MatrixUtil.MatrixValues currentValues = (MatrixUtil.MatrixValues) animation.getAnimatedValue();
+                    matrix.setValues(currentValues.getValues());
+                    setImageMatrix(matrix);
                 });
                 valueAnimator.start();
             }
@@ -507,20 +459,55 @@ public class CustomDisplayAvatar extends AppCompatImageView
 
     }
 
-    private void startAnimator(AnimatorSet animatorSet, ValueAnimator valueAnimatorX, ValueAnimator valueAnimatorY) {
-        //开始动画
-        animatorSet.setDuration(300);
-        if (valueAnimatorY == null) {
-            //animatorSet的play方法传入null不会报错,只是会返回null,
-            animatorSet.play(valueAnimatorX);
-            animatorSet.start();
-        } else if (valueAnimatorX == null) {
-            animatorSet.play(valueAnimatorY);
-            animatorSet.start();
-        } else {
-            //playTogether传入null会报错
-            animatorSet.playTogether(valueAnimatorX, valueAnimatorY);
-            animatorSet.start();
+    // ----------------------- Scale Gesture Impl -----------------------
+
+    @Override
+    public boolean onScale(ScaleGestureDetector detector) {
+        float scaleFactor = detector.getScaleFactor();
+        float currentScaleX = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_X, matrix);
+        float currentScaleY = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_Y, matrix);
+        //最大最小值判断,最小缩小到比初始缩放值一半,最大放大到初始缩放值5倍
+        if ((initializeScaleX / currentScaleX < 2 && initializeScaleY / currentScaleY < 2 && scaleFactor < 1)
+                || (scaleFactor >= 1 && currentScaleY / initializeScaleY < 5 && currentScaleX / initializeScaleX < 5)) {
+            //直接用currentScale乘以当前矩阵,因为当前矩阵的XY可能是因为图片太大已经缩放过了的矩阵
+            if (scaleFactor < 1) {
+                //缩小以控件中心为缩放中心
+                matrix.postScale(scaleFactor, scaleFactor, width / 2, height / 2);
+            } else {
+                //放大以触控点为放大中心
+                matrix.postScale(scaleFactor, scaleFactor, detector.getFocusX(), detector.getFocusY());
+            }
+            setImageMatrix(matrix);
+        }
+        //onScale返回true表示总是对此次缩放事件进行消费,不然会出现越放大,放大速度越快
+        return true;
+    }
+
+    @Override
+    public boolean onScaleBegin(ScaleGestureDetector detector) {
+        return true;
+    }
+
+    /**
+     * 在结束缩放时,如果是缩小了,就采用属性动画把当前矩阵变化到初始状态的矩阵,
+     * 注意是直接把一个矩阵变化到另外一个矩阵,不用矩阵的乘法运算,
+     * 直接使用ObjectAnimator更改矩阵元素的值实现变化.
+     */
+    @Override
+    public void onScaleEnd(ScaleGestureDetector detector) {
+        float currentScaleX = MatrixUtil.getMatrixValues(MatrixUtil.SCALE_X, matrix);
+        //如果缩小了,在缩放结束时恢复到初始缩放状态
+        if (currentScaleX < initializeScaleX) {
+            float[] valuesFrom = new float[9];
+            matrix.getValues(valuesFrom);
+            ValueAnimator valueAnimator = MatrixUtil.matrixToMatrix(new MatrixUtil.MatrixEvaluator(),
+                    valuesFrom, initializeMatrixValues, 300);
+            valueAnimator.addUpdateListener(animation -> {
+                MatrixUtil.MatrixValues matrixValues = (MatrixUtil.MatrixValues) animation.getAnimatedValue();
+                matrix.setValues(matrixValues.getValues());
+                setImageMatrix(matrix);
+            });
+            valueAnimator.start();
         }
     }
 }

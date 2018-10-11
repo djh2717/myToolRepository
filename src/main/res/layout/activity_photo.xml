@@ -4,15 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="my.custom.view.PhotoActivity">
+    tools:context="my.code.repository.custom.view.PhotoActivity">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolBar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimaryDark">
 
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
     <ImageView
         android:id="@+id/cropImageView"
@@ -22,7 +22,7 @@
         tools:ignore="ContentDescription" />
 
     <!--Remember to add a custom attribute declaration for the crop category-->
-    <my.custom.view.WeChatCrop
+    <my.code.repository.custom.view.WeChatCrop
         android:id="@+id/weChatImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

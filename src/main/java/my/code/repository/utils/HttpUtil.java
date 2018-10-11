@@ -2,8 +2,8 @@ package my.code.repository.utils;
 
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.widget.ProgressBar;
 
 import java.io.BufferedInputStream;
@@ -25,7 +25,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import my.code.repository.design.mode.CloseableUtil;
+import my.code.repository.design.principle.CloseableUtil;
 
 /**
  * A http util, packaged thread pool and use handler mutual with main thread, this can
@@ -88,7 +88,7 @@ public class HttpUtil {
     }
 
     /**
-     * When the user stop get the data, use this disconnect.
+     * When the djh stop get the data, use this disconnect.
      */
     public static void stopGet(String... urls) {
         for (String url : urls) {
@@ -196,49 +196,46 @@ public class HttpUtil {
 
     private static void getLargeData(final String url, final Handler handler, final String fileName, final ProgressBar progressBar) {
         initExecutorService();
-        sExecutorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                long alreadyReadSize;
-                HttpURLConnection httpURLConnection;
-                File file = new File(MyApplication.getContext().getFilesDir(), fileName);
+        sExecutorService.execute(() -> {
+            long alreadyReadSize;
+            HttpURLConnection httpURLConnection;
+            File file = new File(MyApplication.getContext().getFilesDir(), fileName);
 
-                // Judge the file whether already exists.
-                if (!file.exists() || file.length() == 0) {
-                    try {
-                        file.createNewFile();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    httpURLConnection = getConnect(url, handler, -1);
+            // Judge the file whether already exists.
+            if (!file.exists() || file.length() == 0) {
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                httpURLConnection = getConnect(url, handler, -1);
+            } else {
+                alreadyReadSize = file.length();
+                httpURLConnection = getConnect(url, handler, alreadyReadSize);
+            }
+            if (httpURLConnection == null) {
+                return;
+            }
+            // Put this connection to the map, when djh stop get the data, get
+            // the connection and disconnect.
+            if (sConnectionMap == null) {
+                sConnectionMap = new HashMap<>(16);
+            }
+            sConnectionMap.put(url, httpURLConnection);
+            // Start download.
+            boolean success = readLargeDataAndSaveToFile(file, httpURLConnection, handler, progressBar);
+            if (success) {
+                showToast(handler, "下载成功");
+                sConnectionMap.remove(url);
+            } else {
+                if (sStopGet) {
+                    showToast(handler, "暂停下载");
+                    sStopGet = false;
+                } else if (sCancelGet) {
+                    showToast(handler, "取消下载");
+                    sCancelGet = false;
                 } else {
-                    alreadyReadSize = file.length();
-                    httpURLConnection = getConnect(url, handler, alreadyReadSize);
-                }
-                if (httpURLConnection == null) {
-                    return;
-                }
-                // Put this connection to the map, when user stop get the data, get
-                // the connection and disconnect.
-                if (sConnectionMap == null) {
-                    sConnectionMap = new HashMap<>(16);
-                }
-                sConnectionMap.put(url, httpURLConnection);
-                // Start download.
-                boolean success = readLargeDataAndSaveToFile(file, httpURLConnection, handler, progressBar);
-                if (success) {
-                    showToast(handler, "下载成功");
-                    sConnectionMap.remove(url);
-                } else {
-                    if (sStopGet) {
-                        showToast(handler, "暂停下载");
-                        sStopGet = false;
-                    } else if (sCancelGet) {
-                        showToast(handler, "取消下载");
-                        sCancelGet = false;
-                    } else {
-                        showToast(handler, "下载失败,请重试");
-                    }
+                    showToast(handler, "下载失败,请重试");
                 }
             }
         });
@@ -322,12 +319,9 @@ public class HttpUtil {
                     // Show read progress.
                     alreadyReadSize += hasRead;
                     final long finalAlreadyReadSize = alreadyReadSize;
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            int progressValue = (int) ((finalAlreadyReadSize / (float) totalSize) * 100);
-                            progressBar.setProgress(progressValue);
-                        }
+                    handler.post(() -> {
+                        int progressValue = (int) ((finalAlreadyReadSize / (float) totalSize) * 100);
+                        progressBar.setProgress(progressValue);
                     });
                 }
 
@@ -347,11 +341,6 @@ public class HttpUtil {
     }
 
     private static void showToast(Handler handler, final String content) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                ToastUtil.showToast(content);
-            }
-        });
+        handler.post(() -> ToastUtil.showToast(content));
     }
 }

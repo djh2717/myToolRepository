@@ -10,7 +10,7 @@ import android.view.View;
  * bottom navigation.
  *
  * @author Djh on 2018/7/23 14:48
- * E-Mail ：1544579459@qq.com
+ * @E-Mail ：1544579459@qq.com
  */
 public class StatusBarUtil {
 
