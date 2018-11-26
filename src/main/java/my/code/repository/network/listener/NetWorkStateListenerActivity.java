@@ -9,14 +9,16 @@ import android.graphics.PixelFormat;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.provider.Settings;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 
-import advanced.nioDemo.R;
+import my.demo.one.R;
 import my.code.repository.utils.ActivityUtil;
 import my.code.repository.utils.NetWorkUtil;
 import my.code.repository.utils.PxUtil;
@@ -28,6 +30,7 @@ import my.code.repository.utils.PxUtil;
  *
  * @author djh on 2018-8-1 13:06:23
  */
+@SuppressWarnings("ALL")
 @SuppressLint("Registered")
 public class NetWorkStateListenerActivity extends AppCompatActivity {
 

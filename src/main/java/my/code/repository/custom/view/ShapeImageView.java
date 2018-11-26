@@ -17,7 +17,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-import advanced.nioDemo.R;
+import my.demo.one.R;
 import my.code.repository.dagger2.component.DaggerShapeImageViewComponent;
 import my.code.repository.utils.BitmapUtil;
 import my.code.repository.utils.PxUtil;

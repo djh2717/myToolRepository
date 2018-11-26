@@ -12,7 +12,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-import advanced.nioDemo.R;
+import my.demo.one.R;
 import my.code.repository.dagger2.component.DaggerLoadingViewComponent;
 import my.code.repository.utils.PxUtil;
 

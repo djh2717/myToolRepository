@@ -14,7 +14,7 @@ import com.bumptech.glide.load.engine.cache.LruResourceCache;
 import com.bumptech.glide.module.AppGlideModule;
 import com.bumptech.glide.request.RequestOptions;
 
-import advanced.nioDemo.R;
+import my.demo.one.R;
 
 /**
  * This is use to setting the glide default config, and also can use to replace

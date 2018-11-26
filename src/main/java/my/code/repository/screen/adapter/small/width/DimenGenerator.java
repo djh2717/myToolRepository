@@ -1,4 +1,4 @@
-package my.code.repository.dimen.sw.adapter;
+package my.code.repository.screen.adapter.small.width;
 
 
 /**

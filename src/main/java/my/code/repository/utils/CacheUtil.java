@@ -22,8 +22,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import my.code.repository.utils.MyApplication;
-
 /**
  * A cache util, use the disk cache and memory cache to implement cache frame, the
  * cache frame is only cache the bitmap.
@@ -31,6 +29,7 @@ import my.code.repository.utils.MyApplication;
  * @author djh on  2018/7/31 15:53
  * @E-Mail 1544579459@qq.com
  */
+@SuppressWarnings("ALL")
 public class CacheUtil {
 
 
@@ -289,7 +288,7 @@ public class CacheUtil {
         try {
             PackageInfo packageInfo = sContext.getPackageManager()
                     .getPackageInfo(sContext.getPackageName(), 0);
-            return packageInfo.versionCode;
+            return (int) packageInfo.getLongVersionCode();
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }

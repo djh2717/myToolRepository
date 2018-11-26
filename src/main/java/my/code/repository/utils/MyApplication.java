@@ -13,7 +13,6 @@ import com.orhanobut.logger.PrettyFormatStrategy;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 
-import org.greenrobot.eventbus.EventBus;
 import org.litepal.LitePal;
 
 import javax.inject.Inject;
@@ -21,11 +20,11 @@ import javax.inject.Inject;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
-import event.bus.MyEventBusIndex;
 
 /**
  * @author 15445
  */
+@SuppressWarnings("ALL")
 public class MyApplication extends Application implements HasActivityInjector {
 
     @Inject
@@ -57,7 +56,7 @@ public class MyApplication extends Application implements HasActivityInjector {
         refWatcher = installRefWatcher();
 
         // EventBus index. May need modify the argument at the gradle
-        EventBus.builder().addIndex(new MyEventBusIndex()).installDefaultEventBus();
+//        EventBus.builder().addIndex(new MyEventBusIndex()).installDefaultEventBus();
 
         // Custom crash handler init.
         CrashHandler.INSTANCE.install(this);

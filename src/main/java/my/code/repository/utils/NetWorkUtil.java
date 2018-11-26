@@ -2,7 +2,10 @@ package my.code.repository.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.NetworkInfo;
+import android.net.NetworkRequest;
+import android.net.NetworkSpecifier;
 
 /**
  * A net work util, use to judging network status.

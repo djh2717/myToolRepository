@@ -4,6 +4,7 @@ package my.code.repository.utils
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.view.Gravity
 import com.google.android.material.snackbar.Snackbar
 import android.view.View
 import android.view.ViewGroup
@@ -16,15 +17,19 @@ import android.widget.Toast
  * @E-Mail 1544579459@qq.com
  */
 private var sToast: Toast? = null
+@SuppressLint("StaticFieldLeak")
 private var sSnackbar: Snackbar? = null
 
 @JvmOverloads
 @SuppressLint("ShowToast")
-fun showToast(content: String, duration: Int = Toast.LENGTH_LONG) {
+fun showToast(content: String, duration: Int = Toast.LENGTH_LONG, gravity: Int = -1) {
     if (sToast == null) {
         sToast = Toast.makeText(MyApplication.getContext(), content, duration)
     } else {
         sToast?.setText(content)
+    }
+    if (gravity != -1) {
+        sToast?.setGravity(gravity, 0, 0)
     }
     sToast?.show()
 }

@@ -9,7 +9,9 @@ import android.content.Context;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+
 import androidx.appcompat.widget.AppCompatImageView;
+
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
@@ -25,6 +27,7 @@ import my.code.repository.utils.MatrixUtil;
  *
  * @author 15445
  */
+@SuppressWarnings("ALL")
 public class CustomDisplayAvatar extends AppCompatImageView
         implements ScaleGestureDetector.OnScaleGestureListener {
 

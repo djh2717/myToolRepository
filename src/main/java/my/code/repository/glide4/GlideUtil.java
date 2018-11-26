@@ -2,18 +2,14 @@ package my.code.repository.glide4;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 
+import androidx.annotation.Nullable;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 import my.code.repository.utils.MyApplication;
 import my.code.repository.utils.PxUtil;
@@ -24,6 +20,7 @@ import my.code.repository.utils.PxUtil;
  * @author djh on  2018/8/19 18:02
  * @E-Mail 1544579459@qq.com
  */
+@SuppressWarnings("ALL")
 public class GlideUtil {
     @SuppressLint("StaticFieldLeak")
     private static final Context CONTEXT = MyApplication.getContext();
@@ -41,13 +38,13 @@ public class GlideUtil {
      */
     @SuppressLint("CheckResult")
     public static void loadBackground(String url, final ImageView imageView, @Nullable RequestOptions requestOptions) {
-        getRequestBuilder(url, requestOptions).into(new SimpleTarget<Drawable>() {
-
-            @Override
-            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                imageView.setBackground(resource);
-            }
-        });
+//        getRequestBuilder(url, requestOptions).into(new SimpleTarget<Drawable>() {
+//
+//            @Override
+//            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+//                imageView.setBackground(resource);
+//            }
+//        });
     }
 
     /**

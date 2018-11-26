@@ -1,5 +1,7 @@
-package my.code.repository.dimen.sw.adapter;
+package my.code.repository.screen.adapter.small.width;
 
+
+import android.annotation.SuppressLint;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,6 +12,7 @@ import java.math.BigDecimal;
 /**
  * @author 15445
  */
+@SuppressWarnings("ALL")
 public class MakeUtils {
 
     private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n";
@@ -37,6 +40,7 @@ public class MakeUtils {
     /**
      * 生成所有的尺寸数据
      */
+    @SuppressLint("DefaultLocale")
     private static String makeAllDimens(DimenTypes type, int designWidth) {
         float dpValue;
         String temp;

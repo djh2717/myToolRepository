@@ -9,11 +9,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+
 import android.widget.RemoteViews;
 
-import advanced.nioDemo.R;
+import my.demo.one.R;
 
 /**
  * A notification util, can adaptation android 8.0
@@ -21,6 +23,7 @@ import advanced.nioDemo.R;
  * @author Djh on 2018/7/23 09:14
  * @E-Mail 1544579459@qq.com
  */
+@SuppressWarnings("ALL")
 public class NotificationUtil {
 
     public static final int PRIORITY_MAX = NotificationCompat.PRIORITY_MAX;

@@ -3,6 +3,7 @@ package my.code.repository.adapter;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +14,14 @@ import com.airbnb.lottie.LottieAnimationView;
 
 import java.util.Collection;
 
-import advanced.nioDemo.R;
+import my.demo.one.R;
+
 /**
  * A recyclerView adapter, use to show load more layout.
  *
  * @author djh
  */
+@SuppressWarnings("ALL")
 public class LoadMoreAdapter<T> extends RecyclerView.Adapter<LoadMoreAdapter.LoadMoreViewHolder> {
 
     /**

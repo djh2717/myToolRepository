@@ -31,7 +31,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Objects;
 
-import advanced.nioDemo.R;
+import my.demo.one.R;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -185,7 +185,7 @@ public class PhotoActivity extends AppCompatActivity {
     }
 
     private void openAlbum() {
-        //Request for access
+        // Request for access
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_OPEN_ALBUM);
@@ -359,11 +359,9 @@ public class PhotoActivity extends AppCompatActivity {
                 default:
             }
             //After getting the angle,rotating picture.
-            int width = bitmap.getWidth();
-            int height = bitmap.getHeight();
             Matrix matrix = new Matrix();
             matrix.postRotate(degree);
-            return Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+            return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         } catch (IOException e) {
             e.printStackTrace();
         }

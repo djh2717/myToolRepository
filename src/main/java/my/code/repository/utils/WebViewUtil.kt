@@ -5,6 +5,7 @@ package my.code.repository.utils
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.service.quicksettings.Tile
+import android.view.KeyEvent
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -77,7 +78,7 @@ class WebViewManger(private val webView: WebView) {
             loadsImagesAutomatically = true
             defaultTextEncodingName = "utf-8"
             javaScriptCanOpenWindowsAutomatically = true
-    
+
 //            domStorageEnabled = true
             
             
@@ -129,7 +130,7 @@ class WebViewManger(private val webView: WebView) {
     /**
      * Install all call back, this must be call at last!
      */
-    fun install() {
+    fun install(): WebViewManger {
         
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
@@ -155,6 +156,11 @@ class WebViewManger(private val webView: WebView) {
                 onProgressChanged?.invoke(view, newProgress)
             }
         }
+        return this
+    }
+    
+    fun go(url: String) {
+        webView.loadUrl(url)
     }
 }
 
@@ -171,4 +177,12 @@ fun WebView.destroyWebView() {
     loadDataWithBaseURL(null, "", "text/html", "utf-8", null)
     (this.parent as ViewGroup).removeView(this)
     destroy()
+}
+
+fun WebView.onBackKeyDown(keyCode: Int): Boolean {
+    if (keyCode == KeyEvent.KEYCODE_BACK && canGoBack()) {
+        goBack()
+        return true
+    }
+    return false
 }

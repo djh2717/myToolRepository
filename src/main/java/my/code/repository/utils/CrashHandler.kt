@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package my.code.repository.utils
 
 import android.annotation.SuppressLint
@@ -9,7 +11,6 @@ import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.PrintWriter
-import java.lang.Exception
 
 /**
  * This is a custom crash handler, use to handler no catch exception, and save the
