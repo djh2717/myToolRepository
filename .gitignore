@@ -29,10 +29,11 @@
 
 
 /src/main/res/*
-!/src/main/res/menu/
 !/src/main/res/layout/
-!/src/main/res/values/
 !/src/main/res/drawable/
+!/src/main/res/values/
+!/src/main/res/menu/
+!/src/main/res/anim/
 
 
 /src/main/res/layout/*
@@ -72,3 +73,9 @@
 /src/main/res/menu/*
 #Insert here is not ignored menu files.
 !/src/main/res/menu/crop_menu.xml
+
+
+/src/main/res/anim/*
+#Insert here is not ignored aim files.
+!/src/main/res/anim/dialog_enter.xml
+!/src/main/res/anim/dialog_return.xml
